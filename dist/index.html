@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Split the Bill — the receipt splitter that keeps your receipts</title>
+<meta name="description" content="Photograph a receipt, split it with friends, settle up. Everything happens on your phone. No accounts, no servers, no network permission.">
+
+<style>
+/* The page loads nothing from anywhere. Fonts are served from here, like
+   everything else, which seemed the least you could do for an app whose
+   whole argument is that nothing leaves the device. */
+@font-face{font-family:Nunito;src:url(site/fonts/Nunito.ttf) format('truetype');
+  font-weight:100 900;font-display:swap}
+@font-face{font-family:RobotoMono;src:url(site/fonts/RobotoMono.ttf) format('truetype');
+  font-weight:100 700;font-display:swap}
+
+:root{
+  --bg:#F7F4EE; --card:#FFF; --line:#E5E0D2; --line2:#D8D2C2;
+  --ink:#1E2749; --mut:#8B8677; --chip:#EDE9DE;
+  --green:#10A374; --green-dark:#0B845E; --ok-bg:#E4F4EC;
+  --gold:#E2A21B;
+  --pad:24px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#14181F; --card:#1E242E; --line:#2B3240; --line2:#39414F;
+    --ink:#EFECE2; --mut:#98948A; --chip:#2A303C;
+    --ok-bg:#143528;
+  }
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:Nunito,system-ui,-apple-system,sans-serif;
+  font-weight:600;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+/* padding-inline, not the shorthand: `padding: 0 var(--pad)` was resetting
+   the vertical padding every section sets, which is why they all touched. */
+.wrap{max-width:1040px;margin:0 auto;padding-inline:var(--pad)}
+/* One rhythm for the whole page. Collapsing the gap between adjacent
+   sections turned out to leave them touching, so each simply carries half
+   the space it needs above and below. */
+section{padding-block:clamp(34px,5vw,52px)}
+h1,h2,h3{margin:0;line-height:1.15;font-weight:900;letter-spacing:-.01em}
+p{margin:0}
+a{color:inherit}
+
+/* ---------------------------------------------------------------- hero */
+.hero{padding-block:clamp(28px,6vw,48px) clamp(34px,5vw,52px);
+  text-align:center}
+.hero img.logo{width:132px;height:auto;
+  filter:drop-shadow(0 10px 22px rgba(28,34,44,.18))}
+.hero h1{font-size:clamp(34px,7.5vw,60px);margin:22px 0 0}
+.hero .sub{font-size:clamp(16px,2.6vw,20px);color:var(--mut);
+  font-weight:700;margin:14px auto 0;max-width:30ch}
+
+.chip{display:inline-flex;align-items:center;gap:7px;margin-top:20px;
+  background:var(--ok-bg);color:var(--green-dark);white-space:nowrap;
+  font-size:clamp(9.5px,2.9vw,12px);font-weight:800;
+  padding:7px 14px;border-radius:99px}
+@media (prefers-color-scheme:dark){.chip{color:#4CCB9A}}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
+
+/* ------------------------------------------------------------ buttons */
+.cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  margin-top:clamp(24px,4vw,32px)}
+.btn{display:inline-flex;align-items:center;gap:13px;text-decoration:none;
+  border-radius:16px;padding:13px 22px;min-width:216px}
+.btn svg{flex:none}
+.btn small{display:block;font-size:11px;font-weight:800;opacity:.75;
+  letter-spacing:.5px;text-transform:uppercase;line-height:1.5}
+.btn b{display:block;font-size:17px;font-weight:900;line-height:1.15}
+.btn-primary{background:var(--green);color:#fff;
+  box-shadow:0 2px 0 var(--green-dark)}
+.btn-primary:hover{filter:brightness(1.05)}
+.btn-quiet{background:var(--chip);color:var(--mut);cursor:default}
+.note{margin-top:16px;font-size:13.5px;color:var(--mut);font-weight:800}
+.note.small{margin-top:6px;font-size:12.5px;font-weight:700}
+
+/* -------------------------------------------------------------- phones */
+.shots{display:flex;gap:clamp(18px,3vw,28px);justify-content:center;
+  align-items:flex-end;margin-top:clamp(36px,6vw,54px);flex-wrap:wrap}
+.phone{width:232px;border-radius:34px;padding:9px;background:#1C222C;
+  box-shadow:0 22px 50px rgba(20,24,31,.28);flex:none}
+.phone img{width:100%;display:block;border-radius:26px}
+.phone.small{width:196px;opacity:.94}
+.shot{display:flex;flex-direction:column;align-items:center}
+.caption{margin-top:12px;text-align:center;font-size:12.5px;
+  font-weight:800;color:var(--mut)}
+@media (max-width:760px){
+  /* The whole column goes, caption included. Hiding only the picture left
+     a label floating with nothing above it. */
+  .shot.small{display:none}
+  .phone{width:min(262px,74vw)}
+}
+
+/* ------------------------------------------------------------- blocks */
+.eyebrow{font-size:12px;font-weight:900;letter-spacing:.9px;
+  text-transform:uppercase;color:var(--mut)}
+h2{font-size:clamp(26px,4.4vw,38px);margin-top:10px}
+.lede{color:var(--mut);font-weight:700;font-size:17px;margin-top:14px;
+  max-width:56ch}
+
+.grid{display:grid;gap:14px;margin-top:clamp(26px,4vw,36px);
+  grid-template-columns:repeat(auto-fit,minmax(248px,1fr))}
+.card{background:var(--card);border:1.5px solid var(--line);
+  border-radius:16px;padding:22px}
+.card h3{font-size:17px}
+.card p{color:var(--mut);font-weight:600;font-size:14.5px;margin-top:8px}
+.step{width:30px;height:30px;border-radius:10px;background:var(--ok-bg);
+  color:var(--green-dark);display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:14px;margin-bottom:14px}
+@media (prefers-color-scheme:dark){.step{color:#4CCB9A}}
+
+/* ------------------------------------------------------------ privacy */
+.privacy{background:var(--ink);color:var(--bg);border-radius:26px;
+  padding:clamp(30px,5vw,56px) clamp(24px,5vw,56px)}
+.privacy .eyebrow{color:rgba(255,255,255,.55)}
+.privacy h2{color:#fff}
+@media (prefers-color-scheme:dark){
+  .privacy{background:#232B3D}
+  .privacy h2{color:var(--ink)}
+}
+.privacy .lede{color:rgba(255,255,255,.72)}
+@media (prefers-color-scheme:dark){.privacy .lede{color:rgba(239,236,226,.72)}}
+.facts{list-style:none;padding:0;margin:clamp(26px,4vw,34px) 0 0;
+  display:grid;gap:12px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.facts li{display:flex;gap:12px;align-items:flex-start;
+  background:rgba(255,255,255,.07);border-radius:14px;padding:15px 17px}
+.tick{width:20px;height:20px;border-radius:50%;background:var(--green);
+  color:#fff;font-size:12px;font-weight:900;flex:none;display:flex;
+  align-items:center;justify-content:center;margin-top:2px}
+.facts b{display:block;font-size:15px;color:#fff}
+@media (prefers-color-scheme:dark){.facts b{color:var(--ink)}}
+.facts span{font-size:13.5px;font-weight:600;color:rgba(255,255,255,.66)}
+@media (prefers-color-scheme:dark){.facts span{color:rgba(239,236,226,.66)}}
+
+
+/* -------------------------------------------------------------- close */
+footer{border-top:1.5px solid var(--line);margin-top:clamp(40px,6vw,60px);
+  padding-block:34px 54px;
+  color:var(--mut);font-size:13.5px;font-weight:700;text-align:center}
+footer p{margin:0}
+footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
+</style>
+</head>
+<body>
+
+<header class="wrap hero">
+  <img class="logo" src="site/logo.png" alt="Split the Bill">
+  <h1>Split the bill<br>in seconds.</h1>
+  <p class="sub">Photograph the receipt. Tap who had what. Settle up.</p>
+
+  <div class="chip"><span class="dot"></span>
+    On-device only · receipts never leave your phone</div>
+
+  <div class="cta">
+    <a class="btn btn-primary" href="bill-arm64.apk" download>
+      <svg width="26" height="28" viewBox="0 0 24 26" aria-hidden="true">
+        <path d="M3.2 2.1 14.6 13 3.2 23.9a2 2 0 0 1-.7-1.5V3.6a2 2 0 0 1 .7-1.5Z"
+              fill="currentColor" opacity=".92"/>
+        <path d="M4.5 1.3 16.1 8 13 11 4.5 1.3Z" fill="currentColor" opacity=".72"/>
+        <path d="M4.5 24.7 13 15l3.1 3-11.6 6.7Z" fill="currentColor" opacity=".72"/>
+        <path d="M17.6 8.9 21 10.9c1 .6 1 2.1 0 2.7l-3.4 2-3.4-3.3 3.4-3.4Z"
+              fill="currentColor" opacity=".85"/>
+      </svg>
+      <span><small>Download for</small><b>Android</b></span>
+    </a>
+    <span class="btn btn-quiet">
+      <svg width="24" height="28" viewBox="0 0 22 26" aria-hidden="true">
+        <path d="M15.3 13.6c0-2.6 2.1-3.9 2.2-4-1.2-1.8-3.1-2-3.8-2-1.6-.2-3.1.9-3.9.9
+                 -.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2
+                 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8 1.5 0 2 .8 3.3.8 1.4 0 2.2-1.2
+                 3.1-2.5.9-1.4 1.3-2.8 1.3-2.9-.1 0-2.5-1-2.5-3.8Z"
+              fill="currentColor"/>
+        <path d="M12.9 4.3c.7-.9 1.2-2.1 1-3.3-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.2
+                 1.1.1 2.3-.6 3.1-1.5Z" fill="currentColor"/>
+      </svg>
+      <span><small>Coming soon</small><b>iPhone</b></span>
+    </span>
+  </div>
+  <p class="note">Free. No account. Local.</p>
+  <p class="note small">Version 1.0.1 · <a href="bill-arm32.apk">older 32-bit
+    phones</a></p>
+
+  <div class="shots">
+    <div class="shot small">
+      <div class="phone small"><img src="site/shots/home.png"
+        alt="The home screen, listing a trip and a coffee run"></div>
+      <p class="caption">Your bills, grouped</p>
+    </div>
+    <div class="shot">
+      <div class="phone"><img src="site/shots/check.png"
+        alt="The line items read from the receipt, with a running total"></div>
+      <p class="caption">Check what it read</p>
+    </div>
+    <div class="shot small">
+      <div class="phone small"><img src="site/shots/assign.png"
+        alt="Each item with the faces of the people sharing it"></div>
+      <p class="caption">Tap who had what</p>
+    </div>
+  </div>
+</header>
+
+<section class="wrap">
+  <p class="eyebrow">How it works</p>
+  <h2>Three taps and a photograph.</h2>
+  <p class="lede">The reading happens on the phone, in about a second, using
+    the same text recognition your camera app uses.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="step">1</div>
+      <h3>Photograph the receipt</h3>
+      <p>The text is read on the device. The photo is deleted the moment it
+        has been read — it is never uploaded, and never kept.</p>
+    </div>
+    <div class="card">
+      <div class="step">2</div>
+      <h3>Check what it read</h3>
+      <p>Thermal paper is hard to read, so correcting a line is the main
+        screen, not a fallback. A running total tells you when the numbers
+        match the receipt.</p>
+    </div>
+    <div class="card">
+      <div class="step">3</div>
+      <h3>Tap who had what</h3>
+      <p>Assign each item, or split the lot evenly. Extras and discounts
+        get shared by whoever agrees to them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="privacy">
+    <p class="eyebrow">Why it is built this way</p>
+    <h2>Your receipts are nobody else's business.</h2>
+    <p class="lede">A receipt says where you were, when, with how many people,
+      and what you can afford. Most splitting apps put that on someone's
+      server. This one has nowhere to put it.</p>
+
+    <ul class="facts">
+      <li><span class="tick">✓</span><span>
+        <b>No network permission</b>
+        The app cannot reach the internet. Android enforces that, whatever
+        the code tries to do.</span></li>
+      <li><span class="tick">✓</span><span>
+        <b>No accounts, no sign-in</b>
+        Nothing to create, nothing to leak, nothing to delete later.</span></li>
+      <li><span class="tick">✓</span><span>
+        <b>Text recognition on the device</b>
+        The model ships inside the app. Turn off wifi and mobile data and
+        scanning still works.</span></li>
+      <li><span class="tick">✓</span><span>
+        <b>Backup switched off</b>
+        Android would otherwise copy the app's data to your Google Drive.
+        It is refused, in both directions.</span></li>
+      <li><span class="tick">✓</span><span>
+        <b>Sharing is copy and paste</b>
+        A plain-text summary goes to your clipboard. You choose where it
+        goes next.</span></li>
+      <li><span class="tick">✓</span><span>
+        <b>Optional PIN</b>
+        Stored as a salted hash, and the app hides itself in the task
+        switcher when it is set.</span></li>
+    </ul>
+
+  </div>
+</section>
+
+<section class="wrap">
+  <p class="eyebrow">Groups</p>
+  <h2>For a dinner, or a whole trip.</h2>
+  <p class="lede">One bill splits in seconds. A fortnight of them keeps
+    together in a group, so you can see who paid for what and let the app
+    work out the fewest payments that square everybody up.</p>
+
+  <div class="shots">
+    <div class="shot">
+      <div class="phone"><img src="site/shots/summary.png"
+        alt="The group summary, showing who pays whom and how much"></div>
+      <p class="caption">Settle up in the fewest payments</p>
+    </div>
+    <div class="shot small">
+      <div class="phone small"><img src="site/shots/home-dark.png"
+        alt="The home screen in dark mode, listing two groups"></div>
+      <p class="caption">Light and dark</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="card" style="text-align:center;padding:38px 24px">
+    <h2 style="font-size:clamp(24px,4vw,32px)">Try it now</h2>
+    <p class="lede" style="margin:12px auto 0">
+      Sideloaded, so there is no store listing and no review queue. Android
+      will warn you that it is from an unknown source — that is what
+      installing outside the Play Store looks like.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="bill-arm64.apk" download>
+      <svg width="26" height="28" viewBox="0 0 24 26" aria-hidden="true">
+        <path d="M3.2 2.1 14.6 13 3.2 23.9a2 2 0 0 1-.7-1.5V3.6a2 2 0 0 1 .7-1.5Z"
+              fill="currentColor" opacity=".92"/>
+        <path d="M4.5 1.3 16.1 8 13 11 4.5 1.3Z" fill="currentColor" opacity=".72"/>
+        <path d="M4.5 24.7 13 15l3.1 3-11.6 6.7Z" fill="currentColor" opacity=".72"/>
+        <path d="M17.6 8.9 21 10.9c1 .6 1 2.1 0 2.7l-3.4 2-3.4-3.3 3.4-3.4Z"
+              fill="currentColor" opacity=".85"/>
+      </svg>
+      <span><small>Download for</small><b>Android</b></span>
+    </a>
+      <span class="btn btn-quiet">
+        <span><small>Coming soon</small><b>iPhone</b></span>
+      </span>
+    </div>
+    <p class="note small">Version 1.0.1 · <a href="bill-arm32.apk">older 32-bit
+      phones</a></p>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p>Free, no ads, everything stays on your phone.</p>
+  <p class="made">Made with <span aria-label="love">❤️</span> in Dublin</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12 and later. Nothing in this app is eligible for cloud backup or
+  for device-to-device transfer.
+
+  Without this, Android Auto Backup copies the app's data directory - which
+  is every receipt, every friend's name, and the PIN - to the user's Google
+  Drive. That is a promise this app makes and must keep, so both channels are
+  refused rather than filtered.
+
+  The cost is real and deliberate: a new phone starts empty, and a lost phone
+  means lost bills. Settings says so, and "there is no cloud copy to restore"
+  is the point rather than an oversight.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

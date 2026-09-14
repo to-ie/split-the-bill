@@ -1,0 +1,16 @@
+# Build output. Rebuild with:
+#   cd app && flutter build apk --release --split-per-abi
+dist/*.apk
+dist/web/
+
+# The landing page is source and stays in version control: dist/index.html
+# and dist/site/ are deliberately not ignored.
+
+# The release signing key's location and passwords. The keystore itself lives
+# outside the repository entirely, in ~/.split-the-bill/.
+app/android/key.properties
+*.jks
+*.keystore
+
+# Local scratch
+*.unreadable.*.json

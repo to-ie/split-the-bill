@@ -1,0 +1,47 @@
+name: bill
+description: "Split the Bill - split a receipt without it ever leaving your phone."
+publish_to: 'none'
+version: 1.0.1+2012
+
+environment:
+  sdk: ^3.13.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Camera and on-device OCR. Android and iOS only; the conditional imports in
+  # lib/ocr/engine_factory.dart keep both out of the web and desktop builds.
+  camera: ^0.11.0
+  image_picker: ^1.1.2
+
+  # Explicit camera permission handling, so a refusal can be explained
+  # rather than surfacing as a failed scan.
+  permission_handler: ^11.3.1
+  google_mlkit_text_recognition: ^0.15.0
+
+  # Local storage only. There is no backend and no network dependency.
+  path_provider: ^2.1.4
+
+  # Pure Dart, no platform channels and no network. Used only to avoid
+  # keeping the PIN in the clear on disk.
+  crypto: ^3.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito.ttf
+    - family: RobotoMono
+      fonts:
+        - asset: assets/fonts/RobotoMono.ttf

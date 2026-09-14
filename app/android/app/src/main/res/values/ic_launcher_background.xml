@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The app background, so the icon reads as a piece of the app rather
+         than a white square. -->
+    <color name="ic_launcher_background">#F7F4EE</color>
+</resources>

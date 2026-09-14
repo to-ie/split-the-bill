@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;family=Roboto+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E9E5DB;font-family:'Nunito',system-ui,sans-serif}
+a{color:#0B845E}a:hover{color:#10A374}
+input{font-family:'Nunito',system-ui,sans-serif}
+@keyframes scanline{0%{top:8%}50%{top:86%}100%{top:8%}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:36px 16px;box-sizing:border-box">
+<x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ darkMode }}" hint-size="428,908">
+<div style="--bg:{{ tBg }};--card:{{ tCard }};--line:{{ tLine }};--line2:{{ tLine2 }};--ink:{{ tInk }};--mut:{{ tMut }};--chip:{{ tChip }};--okbg:{{ tOkBg }};--okfg:{{ tOkFg }};min-height:100%;background:var(--bg,#F7F4EE);font-family:'Nunito',system-ui,sans-serif;color:var(--ink,#1E2749);box-sizing:border-box;position:relative;display:flex;flex-direction:column">
+
+<sc-if value="{{ sHome }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;padding:12px 24px 26px;animation:fadeUp .25s ease">
+  <div onClick="{{ goSettings }}" style="align-self:flex-end;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;color:var(--mut,#8B8677)" style-hover="background:var(--chip,#EDE9DE)">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2"></circle><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.6a7.6 7.6 0 0 0-2.6 1.5l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.4-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2.6-1.5l2.4 1 2-3.4-2-1.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path></svg>
+  </div>
+  <img src="logo.png" alt="BILL" style="width:132px;align-self:center;margin-top:0px;filter:drop-shadow(0 8px 18px rgba(28,34,44,.16))">
+  <div style="text-align:center;font-size:24px;font-weight:900;line-height:1.2;margin-top:14px">Split the bill in seconds.</div>
+  <div style="align-self:center;display:flex;align-items:center;gap:7px;margin-top:12px;background:var(--okbg,#E4F4EC);color:var(--okfg,#0B6C4F);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:99px">
+    <div style="width:7px;height:7px;border-radius:50%;background:#10A374"></div>
+    On-device only · receipts never leave your phone
+  </div>
+  <div style="margin-top:auto"></div>
+  <div style="margin-top:20px"></div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ homeRows }}" as="pr" hint-placeholder-count="2">
+      <div onClick="{{ pr.open }}" style-hover="filter:brightness(.98)" style="display:flex;align-items:center;gap:12px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:14px 16px;cursor:pointer">
+        <div style="width:40px;height:40px;border-radius:12px;background:{{ pr.tintBg }};color:{{ pr.tintFg }};display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">{{ pr.mono }}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15px">{{ pr.name }}</div><div style="font-size:12.5px;font-weight:600;color:var(--mut,#8B8677)">{{ pr.sub }}</div></div>
+        <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:14px">{{ pr.amtF }}</div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5 L16 12 L9 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"></path></svg>
+      </div>
+    </sc-for>
+    <sc-if value="{{ noGroups }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1.5px dashed var(--line2,#CFC9B8);border-radius:16px;padding:18px;text-align:center;color:var(--mut,#8B8677);font-weight:700;font-size:13.5px">Nothing yet. Scan your first bill.</div>
+    </sc-if>
+    <sc-if value="{{ hasArchived }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ goArchived }}" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:14px;color:var(--mut,#8B8677);font-weight:800;font-size:13px;cursor:pointer" style-hover="background:var(--chip,#EDE9DE)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><path d="M5 8.5 V18 A2 2 0 0 0 7 20 H17 A2 2 0 0 0 19 18 V8.5 M10 12.5 H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+        {{ archivedLabel }}
+      </div>
+    </sc-if>
+  </div>
+  <div onClick="{{ goDest }}" style-hover="filter:brightness(1.05)" style="margin-top:18px;display:flex;align-items:center;justify-content:center;background:#10A374;color:#fff;font-weight:900;font-size:17px;border-radius:16px;padding:17px;cursor:pointer;box-shadow:0 2px 0 #0B845E">Split a new bill</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sDest }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div><div style="font-size:20px;font-weight:900">Where does this bill go?</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">STEP 1 OF 6</div></div>
+  </div>
+  <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">ADD TO A GROUP</div>
+    <div style="display:flex;flex-direction:column;gap:10px;max-height:264px;overflow:auto;border-radius:16px">
+    <sc-for list="{{ destGroups }}" as="dg" hint-placeholder-count="1">
+      <div onClick="{{ dg.pick }}" style-hover="filter:brightness(.98)" style="display:flex;align-items:center;gap:12px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:14px 16px;cursor:pointer">
+        <div style="width:40px;height:40px;border-radius:12px;background:var(--okbg,#E4F4EC);color:var(--okfg,#0B845E);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">{{ dg.mono }}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15px">{{ dg.name }}</div><div style="font-size:12.5px;font-weight:600;color:var(--mut,#8B8677)">{{ dg.sub }}</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5 L16 12 L9 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"></path></svg>
+      </div>
+    </sc-for>
+    </div>
+    <sc-if value="{{ showNewGroup }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:8px">
+        <input value="{{ newGroupName }}" onChange="{{ setNewGroupName }}" placeholder="Group name, e.g. Lisbon trip" style="flex:1;min-width:0;border:1.5px solid var(--line2,#D8D2C2);border-radius:11px;padding:11px 12px;font-size:14px;font-weight:700;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none">
+        <div onClick="{{ createGroup }}" style="background:{{ tSegBg }};color:{{ tSegFg }};font-size:13px;font-weight:800;padding:11px 18px;border-radius:11px;cursor:pointer;display:flex;align-items:center">Create</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showNewGroupBtn }}" hint-placeholder-val="{{ true }}">
+      <div onClick="{{ openNewGroup }}" style="display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px dashed var(--line2,#CFC9B8);border-radius:14px;padding:12px;color:var(--mut,#7A7668);font-weight:800;font-size:14px;cursor:pointer" style-hover="background:var(--chip,#F1EDE3)">+ Start a new group</div>
+    </sc-if>
+    <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677);margin-top:10px">OR KEEP IT SEPARATE</div>
+    <div onClick="{{ pickOneOff }}" style-hover="filter:brightness(.98)" style="display:flex;align-items:center;gap:12px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:14px 16px;cursor:pointer">
+      <div style="width:40px;height:40px;border-radius:12px;background:var(--chip,#EDE9DE);color:var(--mut,#5B5749);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px">1</div>
+      <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:15px">One-off split</div><div style="font-size:12.5px;font-weight:600;color:var(--mut,#8B8677)">Not part of a group</div></div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sPeople }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1"><div style="font-size:20px;font-weight:900">Who&rsquo;s splitting?</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">STEP 2 OF 6{{ destTag }}</div></div>
+    <div onClick="{{ exitFlow }}" style="display:flex;align-items:center;justify-content:center;min-width:36px;height:32px;padding:0 10px;border-radius:99px;cursor:pointer;color:{{ exitFg }};background:{{ exitBg }};font-size:12.5px;font-weight:800;margin-right:6px" style-hover="filter:brightness(.96)">{{ exitLabel }}</div>
+  </div>
+  <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">FRIENDS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <sc-for list="{{ friendChips }}" as="f" hint-placeholder-count="4">
+        <div onClick="{{ f.toggle }}" style="position:relative;display:flex;align-items:center;gap:10px;background:var(--card,#fff);border:{{ f.border }};border-radius:14px;padding:12px 12px;cursor:pointer">
+          <div style="width:34px;height:34px;border-radius:50%;background:{{ f.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px">{{ f.initial }}</div>
+          <div style="font-weight:800;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</div>
+          <div style="position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;background:#10A374;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;opacity:{{ f.checkOp }};border:2px solid var(--bg,#F7F4EE)">✓</div>
+        </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ showAddFriend }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px">
+          <input value="{{ newFriend }}" onChange="{{ setNewFriend }}" placeholder="Friend's name" style="flex:1;min-width:0;border:1.5px solid var(--line2,#D8D2C2);border-radius:11px;padding:11px 12px;font-size:14px;font-weight:700;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none">
+          <div onClick="{{ addFriend }}" style="background:{{ tSegBg }};color:{{ tSegFg }};font-size:13px;font-weight:800;padding:11px 18px;border-radius:11px;cursor:pointer;display:flex;align-items:center">Add</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ showAddFriendBtn }}" hint-placeholder-val="{{ true }}">
+        <div onClick="{{ openAddFriend }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card,#fff);border:1.5px dashed var(--line2,#CFC9B8);border-radius:14px;padding:12px;color:var(--mut,#8B8677);font-weight:800;font-size:14px;cursor:pointer">+ Add someone new</div>
+      </sc-if>
+    </div>
+    <div style="font-size:13.5px;font-weight:700;color:var(--mut,#7A7668)">{{ partyLine }}</div>
+  </div>
+  <div style="margin-top:auto;padding:16px 20px 22px">
+    <div onClick="{{ goScan }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:#10A374;color:#fff;font-weight:900;font-size:17px;border-radius:16px;padding:17px;cursor:pointer;box-shadow:0 2px 0 #0B845E">Next · scan the bill</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sScan }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1"><div style="font-size:20px;font-weight:900">Scan the bill</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">STEP 3 OF 6{{ destTag }}</div></div>
+    <div onClick="{{ exitFlow }}" style="display:flex;align-items:center;justify-content:center;min-width:36px;height:32px;padding:0 10px;border-radius:99px;cursor:pointer;color:{{ exitFg }};background:{{ exitBg }};font-size:12.5px;font-weight:800;margin-right:6px" style-hover="filter:brightness(.96)">{{ exitLabel }}</div>
+  </div>
+  <div style="flex:1;margin:12px 20px 0;border-radius:20px;background:#1C222C;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:380px">
+    <div style="width:190px;height:310px;background:repeating-linear-gradient(0deg,#F4F1E8 0 26px,#E7E2D3 26px 31px);border-radius:6px;transform:rotate(-3deg);box-shadow:0 12px 40px rgba(0,0,0,.5)"></div>
+    <div style="position:absolute;top:14px;left:14px;width:26px;height:26px;border-top:3px solid #10A374;border-left:3px solid #10A374;border-radius:8px 0 0 0"></div>
+    <div style="position:absolute;top:14px;right:14px;width:26px;height:26px;border-top:3px solid #10A374;border-right:3px solid #10A374;border-radius:0 8px 0 0"></div>
+    <div style="position:absolute;bottom:14px;left:14px;width:26px;height:26px;border-bottom:3px solid #10A374;border-left:3px solid #10A374;border-radius:0 0 0 8px"></div>
+    <div style="position:absolute;bottom:14px;right:14px;width:26px;height:26px;border-bottom:3px solid #10A374;border-right:3px solid #10A374;border-radius:0 0 8px 0"></div>
+    <sc-if value="{{ scanning }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:8%;right:8%;top:8%;height:3px;background:#2EE6A8;box-shadow:0 0 20px #2EE6A8;border-radius:2px;animation:scanline 1.6s ease-in-out infinite"></div>
+      <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:rgba(16,163,116,.92);color:#fff;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:99px;white-space:nowrap">Reading receipt on-device&hellip;</div>
+    </sc-if>
+  </div>
+  <div style="text-align:center;font-size:12px;font-weight:700;color:var(--mut,#8B8677);margin-top:12px">OCR runs on the phone. Nothing is uploaded.</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:38px;padding:14px 20px 24px">
+    <div onClick="{{ startScan }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--mut,#7A7668);font-size:12px;font-weight:800">
+      <div style="width:46px;height:46px;border-radius:14px;background:var(--chip,#EDE9DE);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"></rect><circle cx="9" cy="9" r="2" fill="currentColor"></circle><path d="M5 17 L10 12 L14 16 L17 13 L20 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+      Gallery
+    </div>
+    <div onClick="{{ startScan }}" style="width:76px;height:76px;border-radius:50%;border:4px solid #10A374;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="filter:brightness(1.08)">
+      <div style="width:58px;height:58px;border-radius:50%;background:#10A374"></div>
+    </div>
+    <div style="width:46px;font-size:12px"></div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sEdit }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1"><div style="font-size:20px;font-weight:900">Check the items</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">STEP 4 OF 6 · TAP A LINE TO EDIT</div></div>
+    <div onClick="{{ exitFlow }}" style="display:flex;align-items:center;justify-content:center;min-width:36px;height:32px;padding:0 10px;border-radius:99px;cursor:pointer;color:{{ exitFg }};background:{{ exitBg }};font-size:12.5px;font-weight:800;margin-right:6px" style-hover="filter:brightness(.96)">{{ exitLabel }}</div>
+  </div>
+  <div style="margin:10px 20px 0;display:flex;gap:10px;align-items:flex-start;background:{{ bannerBg }};color:{{ bannerFg }};border-radius:14px;padding:12px 14px;font-size:13px;font-weight:800;line-height:1.4">
+    <div style="width:20px;height:20px;flex:none;border-radius:50%;background:{{ bannerFg }};color:{{ bannerBg }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900">{{ bannerIcon }}</div>
+    <div>{{ bannerText }}</div>
+  </div>
+  <div style="margin:12px 20px 0;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:18px 16px 20px;font-family:'Roboto Mono',monospace">
+    <sc-if value="{{ editingBillName }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:8px;font-family:'Nunito',system-ui,sans-serif">
+        <input value="{{ billName }}" onChange="{{ setBillName }}" style="flex:1;min-width:0;border:1.5px solid var(--line2,#D8D2C2);border-radius:9px;padding:9px 10px;font-size:14px;font-weight:800;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none;text-align:center">
+        <div onClick="{{ doneBillName }}" style="background:{{ tSegBg }};color:{{ tSegFg }};font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:9px;cursor:pointer;display:flex;align-items:center">Done</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ notEditingBillName }}" hint-placeholder-val="{{ true }}">
+      <div onClick="{{ openBillName }}" style="display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;border-radius:8px;padding:2px" style-hover="background:var(--chip,#EDE9DE)">
+        <div style="text-align:center;font-size:13px;font-weight:700;letter-spacing:1px">{{ billNameU }}</div>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 20 L4.8 16.5 L16.2 5.1 A2 2 0 0 1 19 5.1 L18.9 5 A2 2 0 0 1 18.9 7.9 L7.5 19.2 L4 20 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity="0.45"></path></svg>
+      </div>
+    </sc-if>
+    <sc-if value="{{ editingDate }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:8px;margin-top:6px;font-family:'Nunito',system-ui,sans-serif">
+        <input value="{{ billDate }}" onChange="{{ setBillDate }}" style="flex:1;min-width:0;border:1.5px solid var(--line2,#D8D2C2);border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none;text-align:center">
+        <div onClick="{{ doneBillDate }}" style="background:{{ tSegBg }};color:{{ tSegFg }};font-size:12px;font-weight:800;padding:8px 14px;border-radius:9px;cursor:pointer;display:flex;align-items:center">Done</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ notEditingDate }}" hint-placeholder-val="{{ true }}">
+      <div onClick="{{ openBillDate }}" style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;border-radius:8px;padding:2px;margin-top:3px" style-hover="background:var(--chip,#EDE9DE)">
+        <div style="text-align:center;font-size:10.5px;color:var(--mut,#8B8677)">{{ billDateU }} · TABLE 12</div>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 20 L4.8 16.5 L16.2 5.1 A2 2 0 0 1 19 5.1 L18.9 5 A2 2 0 0 1 18.9 7.9 L7.5 19.2 L4 20 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity="0.45"></path></svg>
+      </div>
+    </sc-if>
+    <div style="border-top:1.5px dashed var(--line2,#D8D2C2);margin:12px 0 4px"></div>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+      <div>
+        <div onClick="{{ r.open }}" style="display:flex;align-items:baseline;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;background:{{ r.bg }};opacity:{{ r.op }}">
+          <div style="flex:1;font-size:13px;font-weight:500;text-decoration:{{ r.deco }}">{{ r.desc }}</div>
+          <div style="font-size:13px;font-weight:700;text-decoration:{{ r.deco }}">{{ r.amtF }}</div>
+        </div>
+        <sc-if value="{{ r.showRaw }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;color:var(--mut,#A9A493);padding:0 8px 4px">read: {{ r.raw }}</div></sc-if>
+        <sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--bg,#F7F4EE);border-radius:12px;padding:12px;margin:4px 0 8px;font-family:'Nunito',system-ui,sans-serif;display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;gap:8px">
+            <input value="{{ r.desc }}" onChange="{{ r.setDesc }}" style="flex:1;min-width:0;border:1.5px solid var(--line2,#D8D2C2);border-radius:9px;padding:9px 10px;font-size:14px;font-weight:700;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none">
+            <input value="{{ r.amount }}" onChange="{{ r.setAmount }}" style="width:76px;border:1.5px solid var(--line2,#D8D2C2);border-radius:9px;padding:9px 10px;font-size:14px;font-weight:700;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none;text-align:right;font-family:'Roboto Mono',monospace">
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ r.kinds }}" as="k" hint-placeholder-count="3">
+              <div onClick="{{ k.pick }}" style="padding:6px 11px;border-radius:99px;font-size:12px;font-weight:800;cursor:pointer;background:{{ k.bg }};color:{{ k.fg }}">{{ k.label }}</div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ r.showOcr }}" hint-placeholder-val="{{ true }}"><div style="font-size:11px;color:var(--mut,#8B8677);font-weight:600">OCR read: &ldquo;{{ r.raw }}&rdquo;</div></sc-if>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div onClick="{{ r.removeLine }}" title="Delete this line" style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#C44536;border:1.5px solid #E3B7AE" style-hover="background:rgba(196,69,54,.08)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7 H20 M9 7 V5 A1 1 0 0 1 10 4 H14 A1 1 0 0 1 15 5 V7 M6.5 7 L7.5 20 A1 1 0 0 0 8.5 21 H15.5 A1 1 0 0 0 16.5 20 L17.5 7 M10 11 V17 M14 11 V17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <div onClick="{{ r.done }}" style="background:{{ tSegBg }};color:{{ tSegFg }};font-size:12.5px;font-weight:800;padding:7px 16px;border-radius:99px;cursor:pointer">Done</div>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+    </sc-for>
+    <div onClick="{{ addLine }}" style="display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0 2px;padding:8px;border:1.5px dashed var(--line2,#D8D2C2);border-radius:10px;color:var(--mut,#8B8677);font-family:'Nunito',system-ui,sans-serif;font-size:12.5px;font-weight:800;cursor:pointer" style-hover="background:var(--chip,#F1EDE3)">+ Add an item</div>
+    <div style="border-top:1.5px dashed var(--line2,#D8D2C2);margin:6px 0 10px"></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut,#5B5749);padding:2px 8px"><span>SUBTOTAL</span><span>{{ printedSubF }}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;padding:4px 8px 0"><span>TOTAL</span><span>{{ printedTotalF }}</span></div>
+  </div>
+  <div style="margin-top:auto;padding:16px 20px 22px">
+    <div onClick="{{ editNext }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:#10A374;color:#fff;font-weight:900;font-size:17px;border-radius:16px;padding:17px;cursor:pointer;box-shadow:0 2px 0 #0B845E">{{ editNextLabel }}</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sAssign }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1;min-width:0"><div style="font-size:20px;font-weight:900;white-space:nowrap">Who had what?</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">STEP 5 OF 6</div></div>
+    <div onClick="{{ equalAll }}" style="font-size:12px;font-weight:800;color:var(--okfg,#0B845E);background:var(--okbg,#E4F4EC);padding:8px 12px;border-radius:99px;cursor:pointer" style-hover="filter:brightness(.97)">{{ equalLabel }}</div>
+    <div onClick="{{ exitFlow }}" style="display:flex;align-items:center;justify-content:center;min-width:36px;height:32px;padding:0 10px;border-radius:99px;cursor:pointer;color:{{ exitFg }};background:{{ exitBg }};font-size:12.5px;font-weight:800;margin-right:6px" style-hover="filter:brightness(.96)">{{ exitLabel }}</div>
+  </div>
+  <div style="padding:12px 20px 0;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ assignRows }}" as="it" hint-placeholder-count="5">
+      <div style="background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:13px 14px">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div style="flex:1;font-weight:800;font-size:15px">{{ it.desc }}</div>
+          <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:14px">{{ it.amtF }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <sc-for list="{{ it.people }}" as="p" hint-placeholder-count="4">
+            <div onClick="{{ p.toggle }}" style="width:36px;height:36px;border-radius:50%;background:{{ p.bg }};color:{{ p.fg }};display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;cursor:pointer;border:2px solid {{ p.ring }}" title="{{ p.name }}">{{ p.initial }}</div>
+          </sc-for>
+          <div style="margin-left:auto;font-size:12px;font-weight:800;color:{{ it.hintColor }}">{{ it.hint }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top:auto;padding:16px 20px 22px">
+    <div onClick="{{ goSummary }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:{{ assignCtaBg }};color:#fff;font-weight:900;font-size:17px;border-radius:16px;padding:17px;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.15)">{{ assignCtaLabel }}</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sSummary }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1"><div style="font-size:20px;font-weight:900">This receipt</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">STEP 6 OF 6</div></div>
+    <div onClick="{{ exitFlow }}" style="display:flex;align-items:center;justify-content:center;min-width:36px;height:32px;padding:0 10px;border-radius:99px;cursor:pointer;color:{{ exitFg }};background:{{ exitBg }};font-size:12.5px;font-weight:800;margin-right:6px" style-hover="filter:brightness(.96)">{{ exitLabel }}</div>
+  </div>
+  <div style="margin:10px 20px 0;background:#1E2749;color:#fff;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:12px">
+    <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ billName }}</div><div style="font-size:12.5px;font-weight:600;opacity:.75">{{ partyShort }}</div></div>
+    <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:20px">{{ grandF }}</div>
+  </div>
+  <div style="margin:10px 20px 0;display:flex;align-items:center;gap:8px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;padding:10px 14px">
+    <div style="font-size:11.5px;font-weight:900;letter-spacing:.6px;color:var(--mut,#8B8677)">PAID BY</div>
+    <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
+      <sc-for list="{{ payerChips }}" as="pc" hint-placeholder-count="4">
+        <div onClick="{{ pc.pick }}" style="width:34px;height:34px;border-radius:50%;background:{{ pc.bg }};color:{{ pc.fg }};display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;cursor:pointer;border:2px solid {{ pc.ring }}" title="{{ pc.name }}">{{ pc.initial }}</div>
+      </sc-for>
+    </div>
+  </div>
+  <sc-if value="{{ inGroup }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ goGroupSum }}" style="margin:10px 20px 0;display:flex;align-items:center;gap:10px;background:var(--okbg,#E4F4EC);color:var(--okfg,#0B845E);border-radius:14px;padding:12px 14px;cursor:pointer;font-size:13px;font-weight:800" style-hover="filter:brightness(.98)">
+      <div style="flex:1">Part of {{ groupName }} · see the group total</div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5 L16 12 L9 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </div>
+  </sc-if>
+  <div style="padding:12px 20px 0;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+      <div style="background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:50%;background:{{ c.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">{{ c.initial }}</div>
+          <div style="flex:1;font-weight:900;font-size:16px">{{ c.name }}</div>
+          <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:17px">{{ c.totalF }}</div>
+        </div>
+        <div style="border-top:1.5px dashed var(--line,#E5E0D2);margin:10px 0 6px"></div>
+        <sc-for list="{{ c.lines }}" as="l" hint-placeholder-count="2">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0;color:var(--mut,#5B5749)"><span style="font-weight:600">{{ l.name }}</span><span style="font-family:'Roboto Mono',monospace">{{ l.amt }}</span></div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top:auto;padding:16px 20px 22px;display:flex;flex-direction:column;gap:10px">
+    <div onClick="{{ goHome }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:#10A374;color:#fff;font-weight:900;font-size:17px;border-radius:16px;padding:17px;cursor:pointer;box-shadow:0 2px 0 #0B845E">Done</div>
+    <div onClick="{{ openShareBill }}" style="display:flex;align-items:center;justify-content:center;background:var(--chip,#EDE9DE);color:var(--ink,#1E2749);font-weight:800;font-size:15px;border-radius:14px;padding:14px;cursor:pointer" style-hover="filter:brightness(.97)">Share the split · send a message</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sGroup }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1"><div style="font-size:20px;font-weight:900">{{ groupName }}</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">GROUP · NAME, CURRENCY, RECEIPTS</div></div>
+    <div onClick="{{ toggleGrpMenu }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;margin-right:4px" style-hover="background:var(--chip,#EDE9DE)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5.5" r="1.8" fill="currentColor"></circle><circle cx="12" cy="12" r="1.8" fill="currentColor"></circle><circle cx="12" cy="18.5" r="1.8" fill="currentColor"></circle></svg>
+    </div>
+  </div>
+  <sc-if value="{{ grpMenuOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;top:56px;right:16px;z-index:15;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden;min-width:240px">
+      <div onClick="{{ goHome }}" style="padding:13px 16px;font-weight:800;font-size:14px;color:var(--ink,#1E2749);cursor:pointer;border-bottom:1px solid var(--line,#F0EDE3)" style-hover="background:var(--chip,#F1EDE3)">Go to home</div>
+      <div onClick="{{ toggleGrpCur }}" style="display:flex;align-items:center;gap:8px;padding:13px 16px;font-weight:800;font-size:14px;color:var(--ink,#1E2749);cursor:pointer;border-bottom:1px solid var(--line,#F0EDE3)" style-hover="background:var(--chip,#F1EDE3)">
+        <div style="flex:1">Currency</div>
+        <div style="font-size:12.5px;font-weight:800;color:var(--mut,#8B8677)">{{ grpCurLabel }}</div>
+      </div>
+      <sc-if value="{{ grpCurOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line,#F0EDE3)">
+          <sc-for list="{{ groupCurChips }}" as="cc" hint-placeholder-count="4">
+            <div onClick="{{ cc.pick }}" style="padding:7px 13px;border-radius:99px;font-weight:800;font-size:12.5px;cursor:pointer;background:{{ cc.bg }};color:{{ cc.fg }};border:1px solid var(--line,#E5E0D2)">{{ cc.label }}</div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div onClick="{{ archiveGroup }}" style="padding:13px 16px;font-weight:800;font-size:14px;color:var(--ink,#1E2749);cursor:pointer;border-bottom:1px solid var(--line,#F0EDE3)" style-hover="background:var(--chip,#F1EDE3)">Archive this group</div>
+      <div onClick="{{ deleteGroup }}" style="padding:13px 16px;font-weight:800;font-size:14px;color:{{ delMenuFg }};background:{{ delMenuBg }};cursor:pointer" style-hover="filter:brightness(.97)">{{ deleteGroupLabel }}</div>
+    </div>
+  </sc-if>
+  <div style="padding:14px 20px 26px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">NAME</div>
+      <input value="{{ groupNameVal }}" onChange="{{ renameGroup }}" style="border:1.5px solid var(--line2,#D8D2C2);border-radius:12px;padding:13px 14px;font-size:15px;font-weight:800;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">MEMBERS</div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;padding:12px 14px">
+        <sc-for list="{{ memberAvatars }}" as="m" hint-placeholder-count="4">
+          <div style="width:34px;height:34px;border-radius:50%;background:{{ m.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px" title="{{ m.name }}">{{ m.initial }}</div>
+        </sc-for>
+        <div onClick="{{ goPeople }}" style="margin-left:auto;font-size:12.5px;font-weight:800;color:var(--okfg,#0B845E);cursor:pointer">Edit</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">RECEIPTS · MEALS, TICKETS, ANYTHING</div>
+      <sc-for list="{{ grpReceipts }}" as="gr" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;padding:13px 14px;opacity:{{ gr.op }}">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div onClick="{{ gr.open }}" style="flex:1;min-width:0;cursor:pointer">
+              <div style="font-weight:800;font-size:14px;text-decoration:{{ gr.deco }}">{{ gr.name }}</div>
+              <div style="font-size:12px;font-weight:600;color:var(--mut,#8B8677)">{{ gr.sub }}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--okfg,#0B845E)">{{ gr.paidLine }}</div>
+            </div>
+            <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:13.5px;text-decoration:{{ gr.deco }}">{{ gr.amtF }}</div>
+            <div onClick="{{ gr.toggleMenu }}" style="width:30px;height:30px;border-radius:50%;background:{{ gr.menuBg }};color:var(--mut,#8B8677);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--chip,#EDE9DE)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5.5" r="1.8" fill="currentColor"></circle><circle cx="12" cy="12" r="1.8" fill="currentColor"></circle><circle cx="12" cy="18.5" r="1.8" fill="currentColor"></circle></svg>
+            </div>
+          </div>
+          <sc-if value="{{ gr.menuOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:8px;margin-top:11px">
+              <div onClick="{{ gr.editRow }}" style="flex:1;text-align:center;padding:9px;border-radius:10px;background:var(--chip,#EDE9DE);color:var(--ink,#1E2749);font-weight:800;font-size:13px;cursor:pointer" style-hover="filter:brightness(.96)">Edit</div>
+              <div onClick="{{ gr.toggleSettle }}" style="flex:1;text-align:center;padding:9px;border-radius:10px;background:var(--okbg,#E4F4EC);color:var(--okfg,#0B845E);font-weight:800;font-size:13px;cursor:pointer" style-hover="filter:brightness(.97)">{{ gr.settleLabel }}</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <div style="font-size:11.5px;font-weight:600;color:var(--mut,#8B8677)">Settled bills stay listed but drop out of the group total.</div>
+      <div onClick="{{ addReceiptToGroup }}" style="display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px dashed var(--line2,#CFC9B8);border-radius:14px;padding:12px;color:var(--mut,#7A7668);font-weight:800;font-size:14px;cursor:pointer" style-hover="background:var(--chip,#F1EDE3)">+ Add another receipt</div>
+    </div>
+    <div onClick="{{ goGroupSum }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:#10A374;color:#fff;font-weight:900;font-size:16px;border-radius:16px;padding:16px;cursor:pointer;box-shadow:0 2px 0 #0B845E">Group summary · who owes what overall</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sGroupSum }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1"><div style="font-size:20px;font-weight:900">Group summary</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">EVERY RECEIPT, ONE TOTAL EACH</div></div>
+    <div onClick="{{ goHome }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;color:var(--mut,#8B8677);margin-right:4px" style-hover="background:var(--chip,#EDE9DE)">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M5.2 10.6 V18.4 A1.8 1.8 0 0 0 7 20.2 H17 A1.8 1.8 0 0 0 18.8 18.4 V10.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3.6 11.8 L12 4.6 L20.4 11.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </div>
+  </div>
+  <div style="margin:10px 20px 0;background:#1E2749;color:#fff;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:12px">
+    <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ groupName }}</div><div style="font-size:12.5px;font-weight:600;opacity:.75">{{ gsSub }}</div></div>
+    <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:20px">{{ gsTotalF }}</div>
+  </div>
+  <sc-if value="{{ gsWarnOn }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ goAssign }}" style="margin:10px 20px 0;display:flex;gap:10px;align-items:flex-start;background:{{ tAmBg }};border:1.5px solid {{ tAmLn }};border-radius:14px;padding:12px 14px;font-size:13px;font-weight:800;line-height:1.4;cursor:pointer" style-hover="filter:brightness(.98)">
+      <div style="width:18px;height:18px;flex:none;border-radius:50%;background:#C89B2A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;margin-top:1px">!</div>
+      <div>{{ gsWarnText }}</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ hasSettle }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:10px 20px 0;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:9px">
+      <div style="font-size:11.5px;font-weight:900;letter-spacing:.7px;color:var(--mut,#8B8677)">SETTLE UP · FEWEST PAYMENTS</div>
+      <sc-for list="{{ settleRows }}" as="sr" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:28px;height:28px;border-radius:50%;background:{{ sr.fromColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px">{{ sr.fromInitial }}</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12 H19 M14 6 L20 12 L14 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"></path></svg>
+          <div style="width:28px;height:28px;border-radius:50%;background:{{ sr.toColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px">{{ sr.toInitial }}</div>
+          <div style="flex:1;font-weight:800;font-size:13.5px">{{ sr.label }}</div>
+          <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:14px">{{ sr.amtF }}</div>
+          <div onClick="{{ sr.markPaid }}" style="font-size:11.5px;font-weight:800;color:var(--okfg,#0B845E);background:var(--okbg,#E4F4EC);padding:7px 11px;border-radius:99px;cursor:pointer;white-space:nowrap" style-hover="filter:brightness(.97)">Mark paid</div>
+        </div>
+      </sc-for>
+      <div style="font-size:11px;font-weight:600;color:var(--mut,#8B8677)">Marking a payment as paid records it and updates everyone&rsquo;s balance.</div>
+    </div>
+  </sc-if>
+  <div style="padding:12px 20px 0;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ gsCards }}" as="c" hint-placeholder-count="4">
+      <div style="background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:50%;background:{{ c.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">{{ c.initial }}</div>
+          <div style="flex:1;font-weight:900;font-size:16px">{{ c.name }}</div>
+          <div style="text-align:right"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:17px;color:{{ c.totalColor }}">{{ c.totalF }}</div><div style="font-size:11px;font-weight:800;color:var(--mut,#8B8677)">{{ c.status }}</div></div>
+        </div>
+        <div style="border-top:1.5px dashed var(--line,#E5E0D2);margin:10px 0 6px"></div>
+        <sc-for list="{{ c.lines }}" as="l" hint-placeholder-count="3">
+          <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0;color:var(--mut,#5B5749)"><span style="font-weight:600">{{ l.name }}</span><span style="font-family:'Roboto Mono',monospace">{{ l.amt }}</span></div>
+        </sc-for>
+      </div>
+    </sc-for>
+    <sc-if value="{{ gsEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1.5px dashed var(--line2,#CFC9B8);border-radius:16px;padding:18px;text-align:center;color:var(--mut,#8B8677);font-weight:700;font-size:13.5px">All bills are marked as paid up. Nothing owed.</div>
+    </sc-if>
+  </div>
+  <div style="margin-top:auto;padding:16px 20px 22px">
+    <div onClick="{{ openShareGroup }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:#10A374;color:#fff;font-weight:900;font-size:17px;border-radius:16px;padding:17px;cursor:pointer;box-shadow:0 2px 0 #0B845E">Share the group total</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sReceipt }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div><div style="font-size:20px;font-weight:900">{{ rvTitle }}</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">RECEIPT · READ ONLY</div></div>
+  </div>
+  <div style="margin:12px 20px 0;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:18px 16px 20px;font-family:'Roboto Mono',monospace">
+    <div style="text-align:center;font-size:13px;font-weight:700;letter-spacing:1px">{{ rvTitleU }}</div>
+    <div style="text-align:center;font-size:10.5px;color:var(--mut,#8B8677);margin-top:3px">{{ rvSub }}</div>
+    <div style="border-top:1.5px dashed var(--line2,#D8D2C2);margin:12px 0 4px"></div>
+    <sc-for list="{{ rvRows }}" as="rr" hint-placeholder-count="4">
+      <div style="display:flex;align-items:baseline;gap:8px;padding:6px 8px">
+        <div style="flex:1;font-size:13px;font-weight:500">{{ rr.name }}</div>
+        <div style="font-size:13px;font-weight:700">{{ rr.amt }}</div>
+      </div>
+    </sc-for>
+    <div style="border-top:1.5px dashed var(--line2,#D8D2C2);margin:6px 0 10px"></div>
+    <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;padding:2px 8px"><span>TOTAL</span><span>{{ rvTotalF }}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut,#8B8677);padding:6px 8px 0"><span>PAID BY</span><span>{{ rvPayer }}</span></div>
+  </div>
+  <sc-if value="{{ rvSettled }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:10px 20px 0;text-align:center;font-size:12.5px;font-weight:800;color:var(--okfg,#0B845E);background:var(--okbg,#E4F4EC);border-radius:12px;padding:10px">Settled · dropped out of the group total</div>
+  </sc-if>
+  <div style="margin-top:auto;padding:16px 20px 22px">
+    <div onClick="{{ rvEdit }}" style-hover="filter:brightness(.97)" style="display:flex;align-items:center;justify-content:center;background:var(--chip,#EDE9DE);color:var(--ink,#1E2749);font-weight:800;font-size:15px;border-radius:14px;padding:15px;cursor:pointer">Edit this receipt</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sArchived }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div><div style="font-size:20px;font-weight:900">Archived groups</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">OUT OF THE WAY, NOT DELETED</div></div>
+  </div>
+  <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ archivedRows }}" as="ar" hint-placeholder-count="1">
+      <div style="display:flex;align-items:center;gap:12px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:16px;padding:14px 16px">
+        <div onClick="{{ ar.open }}" style="flex:1;min-width:0;cursor:pointer"><div style="font-weight:800;font-size:15px">{{ ar.name }}</div><div style="font-size:12.5px;font-weight:600;color:var(--mut,#8B8677)">{{ ar.sub }}</div></div>
+        <div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:14px">{{ ar.amtF }}</div>
+        <div onClick="{{ ar.restore }}" style="font-size:12px;font-weight:800;color:var(--okfg,#0B845E);background:var(--okbg,#E4F4EC);padding:8px 12px;border-radius:99px;cursor:pointer" style-hover="filter:brightness(.97)">Restore</div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ noArchived }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1.5px dashed var(--line2,#CFC9B8);border-radius:16px;padding:18px;text-align:center;color:var(--mut,#8B8677);font-weight:700;font-size:13.5px">No archived groups.</div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sSettings }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;animation:fadeUp .25s ease">
+  <div style="display:flex;align-items:center;gap:6px;padding:10px 14px 4px">
+    <div onClick="{{ goBack }}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%" style-hover="background:var(--chip,#EDE9DE)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 L8 12 L15 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div><div style="font-size:20px;font-weight:900">Settings</div><div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--mut,#8B8677)">EVERYTHING STAYS ON THIS PHONE</div></div>
+  </div>
+  <div style="padding:14px 20px 26px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">YOUR NAME</div>
+      <input value="{{ myName }}" onChange="{{ setMyName }}" placeholder="e.g. Sam" style="border:1.5px solid var(--line2,#D8D2C2);border-radius:12px;padding:13px 14px;font-size:15px;font-weight:800;background:var(--card,#fff);color:var(--ink,#1E2749);outline:none">
+      <div style="font-size:12px;font-weight:600;color:var(--mut,#8B8677)">Shown instead of &ldquo;You&rdquo; in summaries and shared texts.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">APPEARANCE</div>
+      <div style="display:flex;background:var(--chip,#EDE9DE);border-radius:12px;padding:3px;gap:3px">
+        <div onClick="{{ pickLight }}" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;background:{{ liBg }};color:{{ liFg }}">Light</div>
+        <div onClick="{{ pickDark }}" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;background:{{ daBg }};color:{{ daFg }}">Dark</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">CURRENCIES</div>
+      <div style="background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;overflow:hidden">
+        <sc-for list="{{ curRows }}" as="cr" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line,#F0EDE3)">
+            <div style="min-width:38px;height:30px;padding:0 6px;border-radius:9px;background:var(--chip,#EDE9DE);color:var(--ink,#1E2749);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;font-family:'Roboto Mono',monospace">{{ cr.sym }}</div>
+            <div style="flex:1;font-weight:800;font-size:14px">{{ cr.name }}</div>
+            <div onClick="{{ cr.pick }}" style="font-size:11.5px;font-weight:800;padding:6px 11px;border-radius:99px;cursor:pointer;background:{{ cr.defBg }};color:{{ cr.defFg }}">{{ cr.defLabel }}</div>
+            <div onClick="{{ cr.remove }}" style="width:26px;height:26px;border-radius:50%;background:var(--chip,#EDE9DE);color:var(--mut,#5B5749);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;cursor:pointer" style-hover="background:#F3D9D3;color:#C44536">×</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ addCurOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;padding:11px 14px">
+            <sc-for list="{{ addCurChips }}" as="ac" hint-placeholder-count="4">
+              <div onClick="{{ ac.add }}" style="padding:7px 13px;border-radius:99px;font-weight:800;font-size:12.5px;cursor:pointer;background:var(--chip,#EDE9DE);color:var(--ink,#1E2749)" style-hover="filter:brightness(.96)">+ {{ ac.label }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ addCurBtn }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ toggleAddCur }}" style="display:flex;align-items:center;justify-content:center;padding:11px 14px;color:var(--mut,#8B8677);font-weight:800;font-size:13px;cursor:pointer" style-hover="background:var(--chip,#F1EDE3)">+ Add a currency</div>
+        </sc-if>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--mut,#8B8677)">The default is used everywhere unless a group overrides it.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">FRIENDS</div>
+      <div style="background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;overflow:hidden">
+        <sc-for list="{{ manageFriends }}" as="mf" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line,#F0EDE3)">
+            <div style="width:30px;height:30px;border-radius:50%;background:{{ mf.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px">{{ mf.initial }}</div>
+            <div style="flex:1;font-weight:800;font-size:14px">{{ mf.name }}</div>
+            <div onClick="{{ mf.remove }}" style="width:26px;height:26px;border-radius:50%;background:var(--chip,#EDE9DE);color:var(--mut,#5B5749);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;cursor:pointer" style-hover="background:#F3D9D3;color:#C44536">×</div>
+          </div>
+        </sc-for>
+        <div style="display:flex;gap:8px;padding:11px 14px">
+          <input value="{{ newFriend }}" onChange="{{ setNewFriend }}" placeholder="Add a friend" style="flex:1;min-width:0;border:1.5px solid var(--line2,#D8D2C2);border-radius:9px;padding:8px 10px;font-size:13.5px;font-weight:700;background:var(--bg,#F7F4EE);color:var(--ink,#1E2749);outline:none">
+          <div onClick="{{ addFriend }}" style="background:{{ tSegBg }};color:{{ tSegFg }};font-size:12.5px;font-weight:800;padding:8px 16px;border-radius:9px;cursor:pointer;display:flex;align-items:center">Add</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">SECURITY</div>
+      <div style="display:flex;align-items:center;gap:10px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;padding:13px 14px">
+        <div style="flex:1"><div style="font-weight:800;font-size:14px">Protect with a PIN</div><div style="font-size:12px;font-weight:600;color:var(--mut,#8B8677)">{{ pinCaption }}</div></div>
+        <div onClick="{{ togglePin }}" style="width:46px;height:26px;border-radius:99px;background:{{ pinBg }};cursor:pointer;display:flex;align-items:center;transition:background .15s">
+          <div style="width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);margin-left:{{ pinMl }};transition:margin-left .15s"></div>
+        </div>
+      </div>
+      <sc-if value="{{ pinOn }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;background:var(--card,#fff);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;padding:13px 14px;cursor:pointer" style-hover="filter:brightness(.98)">
+          <div style="flex:1;font-weight:800;font-size:14px">Change PIN</div>
+          <div style="display:flex;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:var(--mut,#8B8677)"></div><div style="width:8px;height:8px;border-radius:50%;background:var(--mut,#8B8677)"></div><div style="width:8px;height:8px;border-radius:50%;background:var(--mut,#8B8677)"></div><div style="width:8px;height:8px;border-radius:50%;background:var(--mut,#8B8677)"></div></div>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;font-weight:900;letter-spacing:.8px;color:var(--mut,#8B8677)">DATA</div>
+      <div onClick="{{ clearAll }}" style="display:flex;align-items:center;justify-content:center;border:1.5px solid {{ clearBorder }};color:{{ clearFg }};background:{{ clearBg }};border-radius:14px;padding:13px;font-weight:800;font-size:14px;cursor:pointer;transition:background .15s" style-hover="filter:brightness(.97)">{{ clearLabel }}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--mut,#8B8677)">Deletes every group, receipt and friend from this phone. There is no cloud copy to restore.</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ shareOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(10,14,24,.5);z-index:20;display:flex;flex-direction:column;justify-content:flex-end">
+  <div onClick="{{ closeShare }}" style="flex:1"></div>
+  <div style="position:sticky;bottom:0;background:var(--card,#fff);border-radius:24px 24px 0 0;padding:14px 20px 26px;display:flex;flex-direction:column;gap:14px">
+    <div style="width:40px;height:4px;border-radius:2px;background:var(--line2,#D8D2C2);align-self:center"></div>
+    <div style="font-size:18px;font-weight:900">{{ shareTitle }}</div>
+    <div style="background:var(--bg,#F7F4EE);border:1.5px solid var(--line,#E5E0D2);border-radius:14px;padding:14px;max-height:190px;overflow:auto;font-family:'Roboto Mono',monospace;font-size:11.5px;line-height:1.6;white-space:pre-wrap;color:var(--ink,#3A3628)">{{ shareText }}</div>
+    <div onClick="{{ copyShare }}" style-hover="filter:brightness(1.05)" style="display:flex;align-items:center;justify-content:center;background:{{ tSegBg }};color:{{ tSegFg }};font-weight:900;font-size:15px;border-radius:14px;padding:14px;cursor:pointer">{{ copyLabel }}</div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+<div style="position:sticky;bottom:16px;z-index:30;align-self:center;display:flex;align-items:center;gap:9px;background:#1E2749;color:#fff;font-size:12.5px;font-weight:800;padding:10px 16px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.3);margin:8px 24px;animation:fadeUp .2s ease">
+  <div style="width:17px;height:17px;flex:none;border-radius:50%;background:#C44536;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center">!</div>
+  {{ toast }}
+</div>
+</sc-if>
+
+</div>
+</x-import>
+<div style="font-size:12px;color:#8B8677;font-weight:600">Interactive mock · tap through the flow</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRaw&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+class Component extends DCLogic {
+  palette = ['#10A374', '#E2A21B', '#D1603D', '#4A6FD1', '#8A5BC7', '#C24B7A'];
+  defaultPayers = { r1: 'you', r2: 'f1', r3: 'you' };
+  payerOf(r) { return r.live ? this.state.paidBy : (r.paidBy || this.defaultPayers[r.id]); }
+  catalog = [['€', 'Euro'], ['£', 'British pound'], ['$', 'US dollar'], ['CHF', 'Swiss franc'], ['¥', 'Yen'], ['kr', 'Krona'], ['zł', 'Złoty'], ['C$', 'Canadian dollar'], ['A$', 'Australian dollar']];
+  initial() {
+    return {
+      screen: 'home', mode: 'group', selected: ['f1', 'f2', 'f3'],
+      dark: false, appCurrency: '€', currencies: ['€', '£', '$'], pinOn: false, clearArmed: false, deleteArmed: false, myName: '',
+      toast: '', grpCurOpen: false, addCurOpen: false,
+      friends: [
+        { id: 'you', name: 'You', color: '#1E2749' },
+        { id: 'f1', name: 'Amara', color: '#10A374' },
+        { id: 'f2', name: 'Tom', color: '#E2A21B' },
+        { id: 'f3', name: 'Priya', color: '#D1603D' },
+        { id: 'f4', name: 'Nadia', color: '#4A6FD1' },
+      ],
+      groups: [
+        {
+          id: 'lisbon', name: 'Lisbon trip', currency: null,
+          receipts: [
+            { id: 'r1', name: 'Museu do Azulejo', sub: 'Tickets · 12 Sep', total: 40, paidBy: 'you', per: { you: 10, f1: 10, f2: 10, f3: 10 } },
+            { id: 'r2', name: 'Gelato by the river', sub: 'Snack · 13 Sep', total: 14, paidBy: 'f1', per: { you: 3.5, f1: 3.5, f2: 3.5, f3: 3.5 } },
+            { id: 'live', name: 'Trattoria Bella', sub: 'Dinner · 14 Sep', live: true },
+          ],
+        },
+        {
+          id: 'cr', name: 'Coffee run', currency: null,
+          receipts: [{ id: 'r3', name: 'Coffee run', sub: 'Just you · yesterday', total: 8.9, paidBy: 'you', per: { you: 8.9 } }],
+        },
+      ],
+      curGroup: 'lisbon',
+      billName: 'Trattoria Bella', editingBillName: false, paidBy: 'you',
+      billDate: '14 Sep 2026', editingDate: false,
+      scanning: false, editingId: null,
+      items: [
+        { id: 'i1', desc: 'Burrata', amount: '8.00', kind: 'item', raw: 'BURRATA 8.00' },
+        { id: 'i2', desc: 'Margherita', amount: '9.50', kind: 'item', raw: 'MARGHERITA 9.50' },
+        { id: 'i3', desc: 'Diavola', amount: '11.00', kind: 'item', raw: 'DIAVOLA 11.00' },
+        { id: 'i4', desc: 'Peroni 330ml ×2', amount: '9.00', kind: 'item', raw: '2 X PERONI 330ML 9.00' },
+        { id: 'i5', desc: 'T1ramisu', amount: '65.00', kind: 'item', raw: 'T1RAMISU 65.00', sus: true },
+        { id: 'i6', desc: 'Sparkling water', amount: '3.00', kind: 'item', raw: 'SPARKLING WATER 3.00' },
+        { id: 'a1', desc: 'Service charge 10%', amount: '4.70', kind: 'adjustment', raw: 'SERVICE 10% 4.70' },
+      ],
+      assign: {
+        i1: ['you', 'f1'], i2: ['f3'], i3: ['f2'], i4: ['f1', 'f2'],
+        i5: ['you'], i6: ['you', 'f1', 'f2', 'f3'], a1: ['you', 'f1', 'f2', 'f3'],
+      },
+      showAdd: false, extraLabel: '', extraAmount: '', extraType: 'tip',
+      showAddFriend: false, newFriend: '',
+      showNewGroup: false, newGroupName: '', hist: [], grpMenuOpen: false, exitArmed: false, grpRcptMenu: null, viewRcpt: null,
+      shareOpen: false, shareCtx: 'bill', copied: false,
+    };
+  }
+  state = this.initial();
+  p(s) { const n = parseFloat(String(s).replace(',', '.')); return isNaN(n) ? 0 : n; }
+  curGroupObj() { return this.state.groups.find(g => g.id === this.state.curGroup) || null; }
+  cur() {
+    const g = this.curGroupObj();
+    return (g && g.currency) || this.state.appCurrency;
+  }
+  fmt(n, c) { c = c || this.cur(); return (n < 0 ? '−' : '') + c + Math.abs(n).toFixed(2); }
+  nav(screen, extra) {
+    this.setState(s => ({ ...(extra || {}), hist: [...(s.hist || []), s.screen], screen, editingId: null, deleteArmed: false, clearArmed: false, grpMenuOpen: false, exitArmed: false, grpRcptMenu: null }));
+  }
+  go(screen) { this.nav(screen); }
+  back() {
+    this.setState(s => {
+      const h = [...(s.hist || [])];
+      const prev = h.pop() || 'home';
+      return { hist: h, screen: prev, editingId: null, deleteArmed: false, clearArmed: false, grpMenuOpen: false, exitArmed: false };
+    });
+  }
+  upd(id, patch) {
+    this.setState(s => ({ items: s.items.map(it => it.id === id ? { ...it, ...patch, sus: false } : it) }));
+  }
+  partyIds() {
+    const s = this.state;
+    return s.mode === 'group' ? ['you', ...s.selected] : ['you'];
+  }
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 2800);
+  }
+  scrollSheetIntoView() {
+    setTimeout(() => {
+      const sc = [...document.querySelectorAll('div')].find(d =>
+        d.scrollHeight > d.clientHeight + 20 && d.clientHeight > 300 &&
+        /auto|scroll/.test(getComputedStyle(d).overflowY));
+      if (sc) sc.scrollTop = sc.scrollHeight;
+    }, 60);
+  }
+  addFriendNow() {
+    const name = this.state.newFriend.trim();
+    if (!name) return;
+    const id = 'f' + Date.now();
+    const color = this.palette[this.state.friends.length % this.palette.length];
+    this.setState(s => ({
+      friends: [...s.friends, { id, name, color }],
+      selected: [...s.selected, id],
+      newFriend: '', showAddFriend: false,
+    }));
+  }
+  renderVals() {
+    const st = this.state;
+    const dark = st.dark;
+    const T = dark ? {
+      tBg: '#14181F', tCard: '#1E242E', tLine: '#2B3240', tLine2: '#39414F', tInk: '#EFECE2',
+      tMut: '#98948A', tChip: '#2A303C', tOkBg: '#143528', tOkFg: '#4CCB9A',
+      tSegBg: '#EFECE2', tSegFg: '#14181F', tAmBg: '#2C2716', tAmLn: '#4A4128',
+    } : {
+      tBg: '#F7F4EE', tCard: '#FFFFFF', tLine: '#E5E0D2', tLine2: '#D8D2C2', tInk: '#1E2749',
+      tMut: '#8B8677', tChip: '#EDE9DE', tOkBg: '#E4F4EC', tOkFg: '#0B845E',
+      tSegBg: '#1E2749', tSegFg: '#FFFFFF', tAmBg: '#FCF8EC', tAmLn: '#EFE4C3',
+    };
+    const seg = on => ({ bg: on ? T.tSegBg : 'transparent', fg: on ? T.tSegFg : T.tMut });
+    const allFriends = st.friends.map(f => f.id === 'you' ? { ...f, name: (st.myName || '').trim() || 'You' } : f);
+    const fBy = id => allFriends.find(f => f.id === id);
+    const party = allFriends.filter(f => this.partyIds().includes(f.id));
+    const items = st.items;
+    const eff = it => it.kind === 'discount' ? -Math.abs(this.p(it.amount)) : this.p(it.amount);
+    const lineItems = items.filter(i => i.kind === 'item');
+    const adjs = items.filter(i => i.kind === 'adjustment' || i.kind === 'discount');
+    const splitRows = items.filter(i => i.kind === 'item' || i.kind === 'adjustment' || i.kind === 'discount');
+    const itemSum = lineItems.reduce((s, i) => s + this.p(i.amount), 0);
+    const adjSum = adjs.reduce((s, i) => s + eff(i), 0);
+    const printedSub = 47.0, printedTotal = 51.7;
+    const balanced = Math.abs(itemSum - printedSub) < 0.02;
+    const showRaw = this.props.showRaw ?? false;
+    const kindDefs = [['Item', 'item'], ['Extra (+)', 'adjustment'], ['Discount (−)', 'discount'], ['Ignore', 'noise']];
+    const grand = itemSum + adjSum;
+    const group = this.curGroupObj();
+    const solo = st.mode !== 'group';
+
+    const rows = items.map(it => {
+      const editing = st.editingId === it.id;
+      return {
+        id: it.id, desc: it.desc, amount: it.amount, raw: it.raw, editing,
+        amtF: this.fmt(eff(it)),
+        bg: editing ? T.tChip : it.sus ? (dark ? '#3A3315' : '#FCF3DE') : 'transparent',
+        op: it.kind === 'noise' ? 0.45 : 1,
+        deco: it.kind === 'noise' ? 'line-through' : 'none',
+        showRaw: showRaw && !editing,
+        showOcr: it.raw !== 'added by hand',
+        open: () => this.setState({ editingId: editing ? null : it.id }),
+        setDesc: e => this.upd(it.id, { desc: e.target.value }),
+        setAmount: e => this.upd(it.id, { amount: e.target.value }),
+        done: () => this.setState({ editingId: null }),
+        removeLine: () => this.setState(s => ({ items: s.items.filter(x => x.id !== it.id), editingId: null })),
+        kinds: kindDefs.map(([label, k]) => ({
+          label, bg: it.kind === k ? T.tSegBg : T.tChip, fg: it.kind === k ? T.tSegFg : T.tMut,
+          pick: () => this.upd(it.id, { kind: k }),
+        })),
+      };
+    });
+
+    const assignRows = splitRows.map(it => {
+      const ass = st.assign[it.id] || [];
+      const amt = eff(it);
+      return {
+        desc: it.desc, amtF: this.fmt(amt),
+        hint: ass.length ? this.fmt(amt / ass.length) + ' each' : 'Unassigned',
+        hintColor: ass.length ? T.tOkFg : '#C44536',
+        people: party.map(pf => {
+          const on = ass.includes(pf.id);
+          return {
+            name: pf.name, initial: pf.name[0], on,
+            bg: on ? pf.color : T.tChip, fg: on ? '#fff' : T.tMut,
+            ring: on ? pf.color : 'transparent',
+            toggle: () => this.setState(s => {
+              const cur = s.assign[it.id] || [];
+              const nx = cur.includes(pf.id) ? cur.filter(x => x !== pf.id) : [...cur, pf.id];
+              return { assign: { ...s.assign, [it.id]: nx } };
+            }),
+          };
+        }),
+      };
+    });
+    const unassigned = splitRows.filter(it => !(st.assign[it.id] || []).length).length;
+    const partyIdList = this.partyIds();
+    const allEqual = splitRows.length > 0 && splitRows.every(it => {
+      const a = st.assign[it.id] || [];
+      return partyIdList.every(x => a.includes(x));
+    });
+
+    // live receipt per-person totals
+    const livePer = {};
+    const cards = party.map(pf => {
+      const lines = []; let sub = 0;
+      splitRows.forEach(it => {
+        const ass = solo ? ['you'] : (st.assign[it.id] || []);
+        if (!ass.includes(pf.id)) return;
+        const share = eff(it) / ass.length;
+        lines.push({ name: it.desc + (ass.length > 1 ? ' · ÷' + ass.length : ''), amt: this.fmt(share) });
+        sub += share;
+      });
+      livePer[pf.id] = sub;
+      return { name: pf.name, initial: pf.name[0], color: pf.color, totalF: this.fmt(sub), lines };
+    });
+
+    // group aggregation
+    const groupTotals = g => {
+      const per = {}; let total = 0; let settled = 0;
+      const ensure = pid => per[pid] || (per[pid] = { lines: [], share: 0, paid: 0 });
+      g.receipts.forEach(r => {
+        if (r.settled) { settled++; return; }
+        const rTotal = r.live ? grand : r.total;
+        const rName = r.live ? st.billName : r.name;
+        total += rTotal;
+        const shares = r.live ? livePer : r.per;
+        Object.entries(shares).forEach(([pid, amt]) => {
+          const d = ensure(pid);
+          d.lines.push({ name: rName, amt: this.fmt(amt) });
+          d.share += amt;
+        });
+        const payer = this.payerOf(r);
+        if (payer) {
+          // credit only what is actually distributed, so nets always sum to zero
+          const distributed = Object.values(shares).reduce((a, b) => a + b, 0);
+          if (distributed > 0.005) {
+            const d = ensure(payer);
+            d.paid += distributed;
+            d.lines.push({ name: 'Paid ' + rName, amt: this.fmt(-distributed) });
+          }
+        }
+      });
+      (g.settlements || []).forEach(sp => {
+        const fromName = (fBy(sp.from) || { name: '?' }).name;
+        const toName = (fBy(sp.to) || { name: '?' }).name;
+        const df = ensure(sp.from);
+        df.paid += sp.amt;
+        df.lines.push({ name: 'Settled up with ' + toName, amt: this.fmt(-sp.amt) });
+        const dt = ensure(sp.to);
+        dt.paid -= sp.amt;
+        dt.lines.push({ name: 'Received from ' + fromName, amt: this.fmt(sp.amt) });
+      });
+      return { per, total, settled };
+    };
+    const gt = group ? groupTotals(group) : { per: {}, total: 0, settled: 0 };
+    const liveReceiptInGroup = group && group.receipts.some(r => r.live && !r.settled);
+    const liveDistributed = Object.values(livePer).reduce((a, b) => a + b, 0);
+    const gsUnassigned = liveReceiptInGroup ? grand - liveDistributed : 0;
+    const gsCards = Object.entries(gt.per).map(([pid, d]) => {
+      const pf = fBy(pid) || { name: '?', color: '#8B8677' };
+      const net = d.share - d.paid;
+      return {
+        pid, name: pf.name, initial: pf.name[0], color: pf.color, net,
+        totalF: this.fmt(Math.abs(net)),
+        totalColor: net < -0.005 ? T.tOkFg : T.tInk,
+        status: net > 0.005 ? (pf.id === 'you' ? 'owe' : 'owes') : net < -0.005 ? (pf.id === 'you' ? 'get back' : 'gets back') : 'all square',
+        lines: d.lines,
+      };
+    });
+    // minimal pairwise settlement from net balances
+    const debtors = gsCards.filter(c => c.net > 0.005).map(c => ({ pid: c.pid, name: c.name, color: c.color, initial: c.initial, amt: c.net })).sort((a, b) => b.amt - a.amt);
+    const creditors = gsCards.filter(c => c.net < -0.005).map(c => ({ pid: c.pid, name: c.name, color: c.color, initial: c.initial, amt: -c.net })).sort((a, b) => b.amt - a.amt);
+    const transfers = [];
+    let di = 0, ci = 0;
+    while (di < debtors.length && ci < creditors.length) {
+      const pay = Math.min(debtors[di].amt, creditors[ci].amt);
+      transfers.push({ from: debtors[di], to: creditors[ci], amt: pay, amtF: this.fmt(pay) });
+      debtors[di].amt -= pay; creditors[ci].amt -= pay;
+      if (debtors[di].amt < 0.005) di++;
+      if (creditors[ci].amt < 0.005) ci++;
+    }
+
+    const billText = (() => {
+      let t = 'BILL · ' + st.billName + ' · ' + st.billDate + '\nTotal ' + this.fmt(grand) + ' · ' + party.length + (party.length > 1 ? ' people' : ' person') + '\n';
+      cards.forEach(c => {
+        t += '\n' + (c.name === 'You' ? 'You owe ' : c.name + ' owes ') + c.totalF + '\n';
+        c.lines.forEach(l => { t += '  · ' + l.name + ': ' + l.amt + '\n'; });
+      });
+      return t + '\nSplit with BILL · receipts stay on the phone';
+    })();
+    const groupText = (() => {
+      if (!group) return billText;
+      let t = 'BILL · ' + group.name + ' · ' + group.receipts.length + ' receipts\nTotal ' + this.fmt(gt.total) + (gt.settled ? ' (' + gt.settled + ' settled)' : '') + '\n';
+      gsCards.forEach(c => {
+        const you = c.name === 'You';
+        const verb = c.net > 0.005 ? (you ? 'You owe ' : c.name + ' owes ') : c.net < -0.005 ? (you ? 'You get back ' : c.name + ' gets back ') : (you ? 'You are all square' : c.name + ' is all square');
+        t += '\n' + verb + (c.status === 'all square' ? '' : c.totalF) + '\n';
+        c.lines.forEach(l => { t += '  · ' + l.name + ': ' + l.amt + '\n'; });
+      });
+      if (transfers.length) {
+        t += '\nSettle up:\n';
+        transfers.forEach(x => { t += '  ' + (x.from.name === 'You' ? 'You pay' : x.from.name + ' pays') + ' ' + x.to.name + ': ' + x.amtF + '\n'; });
+      }
+      return t + '\nSplit with BILL · receipts stay on the phone';
+    })();
+    const shareText = st.shareCtx === 'group' ? groupText : billText;
+
+    const g2 = seg(st.mode === 'group'), so = seg(st.mode === 'individual');
+    const li = seg(!dark), da = seg(dark);
+    const extraDefs = [['Tip', 'tip'], ['Tax', 'tax'], ['Discount', 'discount']];
+    const currencies = st.currencies;
+    const initials = n => n.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+    const archivedGroups = st.groups.filter(g => g.archived);
+    const homeRows = st.groups.filter(g => !g.archived).map(gr => {
+      const tot = gr.receipts.reduce((s, r) => s + (r.settled ? 0 : (r.live ? grand : r.total)), 0);
+      const multi = gr.receipts.length > 1;
+      const members = new Set();
+      gr.receipts.forEach(r => { if (r.live) this.partyIds().forEach(x => members.add(x)); else Object.keys(r.per).forEach(x => members.add(x)); });
+      return {
+        name: gr.name,
+        sub: gr.receipts.length + (multi ? ' receipts · ' : ' receipt · ') + (members.size > 1 ? members.size + ' people' : 'just you'),
+        mono: initials(gr.name),
+        tintBg: multi ? T.tOkBg : (dark ? '#3A3315' : '#FCF3DE'),
+        tintFg: multi ? T.tOkFg : (dark ? '#D9B44A' : '#A97A10'),
+        amtF: this.fmt(tot, gr.currency || st.appCurrency),
+        open: () => this.nav('group', { curGroup: gr.id }),
+      };
+    });
+
+    const groupName = group ? group.name : '';
+
+    return {
+      darkMode: dark, ...T,
+      sHome: st.screen === 'home', sDest: st.screen === 'dest', sPeople: st.screen === 'people',
+      sScan: st.screen === 'scan', sEdit: st.screen === 'edit', sAssign: st.screen === 'assign',
+      sSummary: st.screen === 'summary', sGroup: st.screen === 'group', sGroupSum: st.screen === 'groupsum',
+      sSettings: st.screen === 'settings', sArchived: st.screen === 'archived', sReceipt: st.screen === 'receipt',
+      scanning: st.scanning, shareOpen: st.shareOpen,
+      goHome: () => this.go('home'), goDest: () => this.go('dest'), goPeople: () => this.go('people'),
+      goScan: () => this.go('scan'), goEdit: () => this.go('edit'), goAssign: () => this.go('assign'),
+      goSummary: () => this.go('summary'), goSettings: () => this.go('settings'),
+      goGroup: () => this.go('group'), goGroupSum: () => this.go('groupsum'),
+      goBack: () => this.back(),
+      exitLabel: st.exitArmed ? 'Discard?' : '✕',
+      exitBg: st.exitArmed ? (dark ? '#3A1D16' : '#FBEAE5') : 'transparent',
+      exitFg: st.exitArmed ? (dark ? '#E8836C' : '#A93A26') : T.tMut,
+      exitFlow: () => {
+        if (!this.state.exitArmed) {
+          this.setState({ exitArmed: true });
+          clearTimeout(this._exitT);
+          this._exitT = setTimeout(() => this.setState({ exitArmed: false }), 2500);
+          return;
+        }
+        const f = this.initial();
+        this.setState({
+          items: f.items, assign: f.assign, billName: f.billName, billDate: f.billDate, paidBy: f.paidBy,
+          screen: 'home', hist: [], exitArmed: false, editingId: null, scanning: false,
+          editingBillName: false, editingDate: false,
+        });
+      },
+      backFromSummary: () => this.back(),
+      homeRows, noGroups: st.groups.filter(g => !g.archived).length === 0,
+      hasArchived: archivedGroups.length > 0, noArchived: archivedGroups.length === 0,
+      archivedLabel: 'Archived groups (' + archivedGroups.length + ')',
+      goArchived: () => this.go('archived'),
+      archivedRows: archivedGroups.map(gr => {
+        const tot = gr.receipts.reduce((s, r) => s + (r.settled ? 0 : (r.live ? grand : r.total)), 0);
+        return {
+          name: gr.name, sub: gr.receipts.length + (gr.receipts.length > 1 ? ' receipts' : ' receipt'),
+          amtF: this.fmt(tot, gr.currency || st.appCurrency),
+          open: () => this.nav('group', { curGroup: gr.id }),
+          restore: () => this.setState(s => ({ groups: s.groups.map(x => x.id === gr.id ? { ...x, archived: false } : x) })),
+        };
+      }),
+      archiveGroup: () => this.setState(s => ({
+        groups: s.groups.map(x => x.id === s.curGroup ? { ...x, archived: true } : x),
+        curGroup: null, screen: 'home', hist: [], grpMenuOpen: false, deleteArmed: false,
+      })),
+      delMenuBg: st.deleteArmed ? '#C44536' : 'transparent',
+      delMenuFg: st.deleteArmed ? '#FFFFFF' : '#C44536',
+      // destination step
+      destGroups: st.groups.filter(g => !g.archived).map(gr => ({
+        name: gr.name, mono: initials(gr.name),
+        sub: gr.receipts.length + (gr.receipts.length > 1 ? ' receipts so far' : ' receipt so far'),
+        pick: () => this.nav('people', { curGroup: gr.id, mode: 'group' }),
+      })),
+      showNewGroup: st.showNewGroup, showNewGroupBtn: !st.showNewGroup,
+      openNewGroup: () => this.setState({ showNewGroup: true }),
+      newGroupName: st.newGroupName,
+      setNewGroupName: e => this.setState({ newGroupName: e.target.value }),
+      createGroup: () => {
+        const name = this.state.newGroupName.trim();
+        if (!name) return;
+        const id = 'g' + Date.now();
+        this.setState(s => ({
+          groups: [...s.groups, { id, name, currency: null, receipts: [{ id: 'live', name: 'Trattoria Bella', sub: 'Dinner · 14 Sep', live: true }] }],
+          curGroup: id, mode: 'group', showNewGroup: false, newGroupName: '',
+          hist: [...(s.hist || []), s.screen], screen: 'people',
+        }));
+      },
+      pickOneOff: () => this.nav('people', { curGroup: null, mode: 'group' }),
+      destTag: group ? ' · ' + group.name.toUpperCase() : ' · ONE-OFF SPLIT',
+      partyLine: party.length + ' splitting, including you.',
+      friendChips: st.friends.slice(1).map(f => {
+        const on = st.selected.includes(f.id);
+        return {
+          name: f.name, initial: f.name[0], color: f.color,
+          border: on ? '2px solid #10A374' : '1.5px solid ' + T.tLine, checkOp: on ? 1 : 0,
+          toggle: () => this.setState(s => ({ selected: s.selected.includes(f.id) ? s.selected.filter(x => x !== f.id) : [...s.selected, f.id] })),
+        };
+      }),
+      showAddFriend: st.showAddFriend, showAddFriendBtn: !st.showAddFriend,
+      openAddFriend: () => this.setState({ showAddFriend: true }),
+      newFriend: st.newFriend,
+      setNewFriend: e => this.setState({ newFriend: e.target.value }),
+      addFriend: () => this.addFriendNow(),
+      startScan: () => {
+        if (this.state.scanning) return;
+        this.setState({ scanning: true });
+        setTimeout(() => this.nav('edit', { scanning: false }), 1700);
+      },
+      bannerBg: balanced ? T.tOkBg : (dark ? '#3A1D16' : '#FBEAE5'),
+      bannerFg: balanced ? T.tOkFg : (dark ? '#E8836C' : '#A93A26'),
+      bannerIcon: balanced ? '✓' : '!',
+      bannerText: balanced
+        ? 'Adds up. Items match the printed subtotal ' + this.fmt(printedSub) + '.'
+        : 'Doesn\u2019t add up. Items total ' + this.fmt(itemSum) + ' but the receipt says ' + this.fmt(printedSub) + '. Double check the lines.',
+      rows, printedSubF: this.fmt(printedSub), printedTotalF: this.fmt(printedTotal),
+      billName: st.billName, billNameU: st.billName.toUpperCase(),
+      billDate: st.billDate, billDateU: st.billDate.toUpperCase(),
+      editingDate: st.editingDate, notEditingDate: !st.editingDate,
+      openBillDate: () => this.setState({ editingDate: true }),
+      doneBillDate: () => this.setState({ editingDate: false }),
+      setBillDate: e => this.setState({ billDate: e.target.value }),
+      editingBillName: st.editingBillName, notEditingBillName: !st.editingBillName,
+      openBillName: () => this.setState({ editingBillName: true }),
+      doneBillName: () => this.setState({ editingBillName: false }),
+      setBillName: e => this.setState({ billName: e.target.value }),
+      addLine: () => {
+        const id = 'n' + Date.now();
+        this.setState(s => {
+          const items = [...s.items];
+          const firstAdj = items.findIndex(i => i.kind === 'adjustment');
+          const newItem = { id, desc: '', amount: '', kind: 'item', raw: 'added by hand', custom: true };
+          if (firstAdj === -1) items.push(newItem); else items.splice(firstAdj, 0, newItem);
+          return { items, editingId: id };
+        });
+      },
+      editNext: () => this.go(solo ? 'summary' : 'assign'),
+      editNextLabel: solo ? 'See the summary' : 'Assign the items',
+      assignRows,
+      equalLabel: allEqual ? 'Clear all' : 'Split equally',
+      equalAll: () => {
+        const ids = allEqual ? [] : this.partyIds();
+        this.setState(s => ({ assign: Object.fromEntries(s.items.filter(i => i.kind === 'item' || i.kind === 'adjustment' || i.kind === 'discount').map(i => [i.id, [...ids]])) }));
+      },
+      showAdd: st.showAdd, showAddBtn: !st.showAdd,
+      openAdd: () => this.setState({ showAdd: true }),
+      cancelAdd: () => this.setState({ showAdd: false, extraLabel: '', extraAmount: '' }),
+      extraTypes: extraDefs.map(([label, k]) => {
+        const s2 = seg(st.extraType === k);
+        return { label, bg: s2.bg, fg: s2.fg, pick: () => this.setState({ extraType: k }) };
+      }),
+      extraPlaceholder: st.extraType === 'tax' ? 'Label, e.g. VAT 21%' : st.extraType === 'discount' ? 'Label, e.g. Voucher' : 'Label, e.g. Cash tip',
+      extraLabel: st.extraLabel, extraAmount: st.extraAmount,
+      setExtraLabel: e => this.setState({ extraLabel: e.target.value }),
+      setExtraAmount: e => this.setState({ extraAmount: e.target.value }),
+      addExtra: () => {
+        const a = this.p(this.state.extraAmount);
+        if (!a) return;
+        const t = this.state.extraType;
+        const neg = t === 'discount';
+        const defLabel = t === 'tax' ? 'Tax' : t === 'discount' ? 'Discount' : 'Tip';
+        this.setState(s => ({
+          items: [...s.items, {
+            id: 'x' + Date.now(), desc: s.extraLabel || defLabel,
+            amount: String(neg ? -Math.abs(a) : Math.abs(a)), kind: 'adjustment', raw: 'added by hand', custom: true,
+          }],
+          showAdd: false, extraLabel: '', extraAmount: '',
+        }));
+      },
+      assignCtaBg: unassigned ? '#C89B2A' : '#10A374',
+      assignCtaLabel: unassigned ? 'Summary · ' + unassigned + ' item' + (unassigned > 1 ? 's' : '') + ' unassigned' : 'See the summary',
+      cards, grandF: this.fmt(grand),
+      partyShort: solo ? 'Just you' : party.length + ' people · ' + st.billDate,
+      inGroup: !!group && st.curGroup !== 'cr',
+      groupName,
+      // group screen
+      groupNameVal: groupName,
+      renameGroup: e => this.setState(s => ({ groups: s.groups.map(x => x.id === s.curGroup ? { ...x, name: e.target.value } : x) })),
+      groupCurChips: ['default', ...currencies].map(c => {
+        const on = group ? (c === 'default' ? !group.currency : group.currency === c) : c === 'default';
+        const s2 = seg(on);
+        return {
+          label: c === 'default' ? 'Default' : c, bg: s2.bg, fg: s2.fg,
+          pick: () => this.setState(s => ({ groups: s.groups.map(x => x.id === s.curGroup ? { ...x, currency: c === 'default' ? null : c } : x) })),
+        };
+      }),
+      memberAvatars: party.map(pf => ({ name: pf.name, initial: pf.name[0], color: pf.color })),
+      grpReceipts: group ? group.receipts.map(r => {
+        const payer = fBy(this.payerOf(r));
+        const menuOpen = st.grpRcptMenu === r.id;
+        return {
+          name: r.live ? st.billName : r.name,
+          sub: r.sub + (r.settled ? ' · settled' : ''),
+          paidLine: payer ? 'Paid by ' + payer.name : '',
+          amtF: this.fmt(r.live ? grand : r.total),
+          op: r.settled ? 0.55 : 1,
+          deco: r.settled ? 'line-through' : 'none',
+          menuOpen, menuBg: menuOpen ? T.tChip : 'transparent',
+          toggleMenu: () => this.setState(s => ({ grpRcptMenu: s.grpRcptMenu === r.id ? null : r.id })),
+          settleLabel: r.settled ? 'Mark as unsettled' : 'Mark as settled',
+          toggleSettle: () => this.setState(s => ({
+            grpRcptMenu: null,
+            groups: s.groups.map(g2 => g2.id === s.curGroup ? { ...g2, receipts: g2.receipts.map(x => x.id === r.id ? { ...x, settled: !x.settled } : x) } : g2),
+          })),
+          editRow: () => {
+            if (r.live) { this.go('edit'); return; }
+            this.showToast('Only the newest receipt opens in this mock.');
+            this.setState({ grpRcptMenu: null });
+          },
+          open: () => this.nav('receipt', { viewRcpt: r.id }),
+        };
+      }) : [],
+      addReceiptToGroup: () => this.nav('scan', { mode: 'group' }),
+      grpMenuOpen: st.grpMenuOpen,
+      toggleGrpMenu: () => this.setState(s => ({ grpMenuOpen: !s.grpMenuOpen, deleteArmed: false, grpCurOpen: false })),
+      grpCurOpen: st.grpCurOpen,
+      toggleGrpCur: () => this.setState(s => ({ grpCurOpen: !s.grpCurOpen })),
+      grpCurLabel: group ? (group.currency || 'Default') : 'Default',
+      deleteGroupLabel: st.deleteArmed ? 'Tap again to confirm' : 'Delete this group',
+      deleteGroup: () => {
+        if (!this.state.deleteArmed) { this.setState({ deleteArmed: true }); return; }
+        this.setState(s => ({ groups: s.groups.filter(x => x.id !== s.curGroup), curGroup: null, screen: 'home', hist: [], deleteArmed: false, grpMenuOpen: false }));
+      },
+      // group summary
+      ...(() => {
+        const r = group && group.receipts.find(x => x.id === st.viewRcpt);
+        if (!r) return { rvTitle: '', rvTitleU: '', rvSub: '', rvRows: [], rvTotalF: '', rvPayer: '', rvSettled: false, rvEdit: () => {} };
+        const name = r.live ? st.billName : r.name;
+        const payer = fBy(this.payerOf(r));
+        const rows = r.live
+          ? splitRows.map(it => ({ name: it.desc, amt: this.fmt(eff(it)) }))
+          : Object.entries(r.per).map(([pid, amt]) => {
+              const pf = fBy(pid) || { name: '?' };
+              return { name: (pf.id === 'you' ? 'Your' : pf.name + '\u2019s') + ' share', amt: this.fmt(amt) };
+            });
+        return {
+          rvTitle: name, rvTitleU: name.toUpperCase(),
+          rvSub: r.sub.toUpperCase(),
+          rvRows: rows,
+          rvTotalF: this.fmt(r.live ? grand : r.total),
+          rvPayer: payer ? payer.name.toUpperCase() : '',
+          rvSettled: !!r.settled,
+          rvEdit: () => {
+            if (r.live) this.go('edit');
+            else this.showToast('Only the newest receipt opens for editing in this mock.');
+          },
+        };
+      })(),
+      gsCards, gsTotalF: this.fmt(gt.total), gsEmpty: gsCards.length === 0,
+      hasSettle: transfers.length > 0,
+      gsWarnOn: gsUnassigned > 0.01,
+      gsWarnText: this.fmt(gsUnassigned) + ' on ' + st.billName + ' not assigned to anyone yet. Tap to finish assigning.',
+      settleRows: transfers.map(x => ({
+        fromInitial: x.from.initial, fromColor: x.from.color,
+        toInitial: x.to.initial, toColor: x.to.color,
+        label: (x.from.name === 'You' ? 'You pay ' : x.from.name + ' pays ') + x.to.name,
+        amtF: x.amtF,
+        markPaid: () => this.setState(s => ({
+          groups: s.groups.map(g2 => g2.id === s.curGroup ? { ...g2, settlements: [...(g2.settlements || []), { from: x.from.pid, to: x.to.pid, amt: x.amt }] } : g2),
+        })),
+      })),
+      payerChips: party.map(pf => {
+        const on = st.paidBy === pf.id;
+        return {
+          name: pf.name, initial: pf.name[0],
+          bg: on ? pf.color : T.tChip, fg: on ? '#fff' : T.tMut,
+          ring: on ? pf.color : 'transparent',
+          pick: () => this.setState({ paidBy: pf.id }),
+        };
+      }),
+      gsSub: group ? group.receipts.length + (group.receipts.length > 1 ? ' receipts · ' : ' receipt · ') + gsCards.length + (gsCards.length > 1 ? ' people' : ' person') : '',
+      openShareBill: () => { this.setState({ shareOpen: true, shareCtx: 'bill' }); this.scrollSheetIntoView(); },
+      openShareGroup: () => { this.setState({ shareOpen: true, shareCtx: 'group' }); this.scrollSheetIntoView(); },
+      closeShare: () => this.setState({ shareOpen: false, copied: false }),
+      shareTitle: st.shareCtx === 'group' ? 'Share the group total' : 'Share the split',
+      copyLabel: st.copied ? 'Copied ✓' : 'Copy the text',
+      copyShare: () => {
+        try { navigator.clipboard.writeText(shareText); } catch (e) {}
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 2000);
+      },
+      shareText,
+      // settings
+      myName: st.myName,
+      setMyName: e => this.setState({ myName: e.target.value }),
+      pickLight: () => this.setState({ dark: false }), pickDark: () => this.setState({ dark: true }),
+      liBg: li.bg, liFg: li.fg, daBg: da.bg, daFg: da.fg,
+      curRows: currencies.map(c => {
+        const isDef = st.appCurrency === c;
+        const entry = this.catalog.find(x => x[0] === c);
+        return {
+          sym: c, name: entry ? entry[1] : c,
+          defLabel: isDef ? 'Default' : 'Set default',
+          defBg: isDef ? T.tSegBg : T.tChip, defFg: isDef ? T.tSegFg : T.tMut,
+          pick: () => this.setState({ appCurrency: c }),
+          remove: () => {
+            if (isDef) { this.showToast('Set another currency as default first.'); return; }
+            const g = this.state.groups.find(x => x.currency === c);
+            if (g) { this.showToast('"' + g.name + '" still uses ' + c + '.'); return; }
+            this.setState(s => ({ currencies: s.currencies.filter(x => x !== c) }));
+          },
+        };
+      }),
+      addCurOpen: st.addCurOpen, addCurBtn: !st.addCurOpen && this.catalog.some(x => !currencies.includes(x[0])),
+      toggleAddCur: () => this.setState(s => ({ addCurOpen: !s.addCurOpen })),
+      addCurChips: this.catalog.filter(x => !currencies.includes(x[0])).map(([sym, name]) => ({
+        label: sym + ' ' + name,
+        add: () => this.setState(s => ({ currencies: [...s.currencies, sym], addCurOpen: false })),
+      })),
+      pinOn: st.pinOn,
+      togglePin: () => this.setState(s => ({ pinOn: !s.pinOn })),
+      pinBg: st.pinOn ? '#10A374' : T.tChip,
+      pinMl: st.pinOn ? '23px' : '3px',
+      pinCaption: st.pinOn ? 'PIN asked whenever the app opens.' : 'Off. Anyone with the phone can open BILL.',
+      clearLabel: st.clearArmed ? 'Tap again to erase everything' : 'Clear all data',
+      clearBg: st.clearArmed ? '#C44536' : 'transparent',
+      clearFg: st.clearArmed ? '#FFFFFF' : '#C44536',
+      clearBorder: st.clearArmed ? '#C44536' : '#E3B7AE',
+      clearAll: () => {
+        if (!this.state.clearArmed) {
+          this.setState({ clearArmed: true });
+          clearTimeout(this._clearT);
+          this._clearT = setTimeout(() => this.setState({ clearArmed: false }), 2500);
+          return;
+        }
+        const fresh = this.initial();
+        fresh.screen = 'settings';
+        fresh.groups = [];
+        fresh.curGroup = null;
+        fresh.hist = [];
+        fresh.dark = this.state.dark;
+        this.setState(fresh);
+      },
+      manageFriends: st.friends.slice(1).map(f => ({
+        name: f.name, initial: f.name[0], color: f.color,
+        remove: () => {
+          const s = this.state;
+          const onBill = Object.values(s.assign).some(a => a.includes(f.id));
+          if (onBill) { this.showToast('Can\u2019t remove ' + f.name + '. They still have items on a bill.'); return; }
+          this.setState(s2 => ({
+            friends: s2.friends.filter(x => x.id !== f.id),
+            selected: s2.selected.filter(x => x !== f.id),
+          }));
+        },
+      })),
+      toastOn: !!st.toast, toast: st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>
