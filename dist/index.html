@@ -195,7 +195,13 @@ a{color:inherit}
   align-items:flex-end;margin-top:clamp(36px,6vw,54px);flex-wrap:wrap}
 .phone{width:232px;border-radius:34px;padding:9px;background:#1C222C;
   box-shadow:0 22px 50px rgba(20,24,31,.28);flex:none}
-.phone img{width:100%;display:block;border-radius:26px}
+/* height:auto matters here. The width and height attributes on the img are
+   there so the browser can reserve the right space before the picture loads,
+   but they also arrive as presentational hints - and with the width overridden
+   to 100% and no height rule, the 1080 came through and stretched every
+   screenshot to a fixed 1080px. Setting it to auto lets the attributes do
+   their real job: they become the aspect ratio. */
+.phone img{width:100%;height:auto;display:block;border-radius:26px}
 .phone.small{width:196px;opacity:.94}
 .shot{display:flex;flex-direction:column;align-items:center}
 .caption{margin-top:12px;text-align:center;font-size:12.5px;
