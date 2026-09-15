@@ -7,11 +7,7 @@
 <meta name="description" content="Photograph a receipt, tap who had what, settle up. A free Android bill splitting app that works offline: no account, no servers, and no network permission at all.">
 <meta name="author" content="Split the Bill">
 
-<!-- WHEN THIS GOES ON A DOMAIN, set it in three places below: the canonical
-     link, og:url and og:image, and the "url" in the JSON-LD. They have to be
-     absolute, so they cannot be filled in until the address is known. Sharing
-     previews and search results will not work properly until they are. -->
-<!-- <link rel="canonical" href="https://YOUR-DOMAIN/"> -->
+<link rel="canonical" href="https://to-ie.github.io/split-the-bill/">
 
 <meta name="theme-color" content="#F7F4EE" media="(prefers-color-scheme:light)">
 <meta name="theme-color" content="#14181F" media="(prefers-color-scheme:dark)">
@@ -21,17 +17,18 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310A374'/%3E%3Cg fill='white'%3E%3Crect x='8' y='9' width='16' height='3' rx='1.5'/%3E%3Crect x='8' y='15' width='16' height='3' rx='1.5'/%3E%3Crect x='8' y='21' width='9' height='3' rx='1.5'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="site/logo.png">
 
+<meta property="og:url" content="https://to-ie.github.io/split-the-bill/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Split the Bill">
 <meta property="og:title" content="Split the Bill · offline bill splitter for Android">
 <meta property="og:description" content="Photograph a receipt, tap who had what, settle up. Free, no account, and it never touches the network.">
-<meta property="og:image" content="site/shots/home.jpg">
+<meta property="og:image" content="https://to-ie.github.io/split-the-bill/site/shots/home.jpg">
 <meta property="og:image:alt" content="The Split the Bill home screen, listing a trip and a coffee run">
 <meta property="og:locale" content="en_IE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Split the Bill · offline bill splitter for Android">
 <meta name="twitter:description" content="Photograph a receipt, tap who had what, settle up. Free, no account, and it never touches the network.">
-<meta name="twitter:image" content="site/shots/home.jpg">
+<meta name="twitter:image" content="https://to-ie.github.io/split-the-bill/site/shots/home.jpg">
 
 <!-- Structured data. The @context is an identifier, not a fetch: no browser
      requests schema.org, so the page still makes no network calls. It is what
@@ -42,11 +39,12 @@
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Split the Bill",
+  "url": "https://to-ie.github.io/split-the-bill/",
   "applicationCategory": "FinanceApplication",
   "applicationSubCategory": "Bill splitting",
   "operatingSystem": "Android 7.0 and later",
   "softwareVersion": "1.0.2",
-  "installUrl": "bill-arm64.apk",
+  "installUrl": "https://github.com/to-ie/split-the-bill/releases/latest/download/bill-arm64.apk",
   "isAccessibleForFree": true,
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
   "permissions": "Camera. No internet permission is requested.",
@@ -60,10 +58,10 @@
     "No account, no analytics and no network permission"
   ],
   "screenshot": [
-    "site/shots/home.jpg",
-    "site/shots/check.jpg",
-    "site/shots/assign.jpg",
-    "site/shots/summary.jpg"
+    "https://to-ie.github.io/split-the-bill/site/shots/home.jpg",
+    "https://to-ie.github.io/split-the-bill/site/shots/check.jpg",
+    "https://to-ie.github.io/split-the-bill/site/shots/assign.jpg",
+    "https://to-ie.github.io/split-the-bill/site/shots/summary.jpg"
   ]
 }
 </script>
@@ -117,8 +115,6 @@
    whole argument is that nothing leaves the device. */
 @font-face{font-family:Nunito;src:url(site/fonts/Nunito.ttf) format('truetype');
   font-weight:100 900;font-display:swap}
-@font-face{font-family:RobotoMono;src:url(site/fonts/RobotoMono.ttf) format('truetype');
-  font-weight:100 700;font-display:swap}
 
 :root{
   --bg:#F7F4EE; --card:#FFF; --line:#E5E0D2; --line2:#D8D2C2;
@@ -313,7 +309,7 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
 
 <header class="wrap hero">
   <img class="logo" src="site/logo.png" alt="Split the Bill" width="420"
-       height="363" fetchpriority="high" decoding="async">
+       height="363" fetchpriority="high">
   <h1>Split the bill<br>in seconds.</h1>
   <p class="sub">Photograph the receipt. Tap who had what. Settle up.</p>
 
@@ -321,7 +317,7 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
     On-device only · receipts never leave your phone</div>
 
   <div class="cta">
-    <a class="btn btn-primary" href="bill-arm64.apk" download>
+    <a class="btn btn-primary" href="https://github.com/to-ie/split-the-bill/releases/latest/download/bill-arm64.apk" download>
       <svg width="26" height="28" viewBox="0 0 24 26" aria-hidden="true">
         <path d="M3.2 2.1 14.6 13 3.2 23.9a2 2 0 0 1-.7-1.5V3.6a2 2 0 0 1 .7-1.5Z"
               fill="currentColor" opacity=".92"/>
@@ -353,19 +349,19 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
   <div class="shots">
     <div class="shot small">
       <div class="phone small"><img src="site/shots/home.jpg" width="540" height="1080"
-        decoding="async"
+       
         alt="The home screen, listing a trip and a coffee run"></div>
       <p class="caption">Your bills, grouped</p>
     </div>
     <div class="shot">
       <div class="phone"><img src="site/shots/check.jpg" width="540" height="1080"
-        decoding="async"
+       
         alt="The line items read from the receipt, with a running total"></div>
       <p class="caption">Check what it read</p>
     </div>
     <div class="shot small">
       <div class="phone small"><img src="site/shots/assign.jpg" width="540" height="1080"
-        decoding="async"
+       
         alt="Each item with the faces of the people sharing it"></div>
       <p class="caption">Tap who had what</p>
     </div>
@@ -450,14 +446,12 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
 
   <div class="shots">
     <div class="shot">
-      <div class="phone"><img src="site/shots/summary.jpg" width="540" height="1080"
-        decoding="async" loading="lazy"
+      <div class="phone"><img src="site/shots/summary.jpg" width="540" height="1080" loading="lazy"
         alt="The group summary, showing who pays whom and how much"></div>
       <p class="caption">Settle up in the fewest payments</p>
     </div>
     <div class="shot small">
-      <div class="phone small"><img src="site/shots/home-dark.jpg" width="540" height="1080"
-        decoding="async" loading="lazy"
+      <div class="phone small"><img src="site/shots/home-dark.jpg" width="540" height="1080" loading="lazy"
         alt="The home screen in dark mode, listing two groups"></div>
       <p class="caption">Light and dark</p>
     </div>
@@ -514,7 +508,7 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
       will warn you that it is from an unknown source. That warning is
       normal for anything installed outside the Play Store.</p>
     <div class="cta">
-      <a class="btn btn-primary" href="bill-arm64.apk" download>
+      <a class="btn btn-primary" href="https://github.com/to-ie/split-the-bill/releases/latest/download/bill-arm64.apk" download>
       <svg width="26" height="28" viewBox="0 0 24 26" aria-hidden="true">
         <path d="M3.2 2.1 14.6 13 3.2 23.9a2 2 0 0 1-.7-1.5V3.6a2 2 0 0 1 .7-1.5Z"
               fill="currentColor" opacity=".92"/>
@@ -553,7 +547,7 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
         <b>Android, 64-bit<span class="tag">Most phones</span></b>
         <p>Anything made in roughly the last eight years. If you are not sure,
           this is the one.</p>
-        <a class="get" href="bill-arm64.apk" download>Download
+        <a class="get" href="https://github.com/to-ie/split-the-bill/releases/latest/download/bill-arm64.apk" download>Download
           bill-arm64.apk</a>
       </span>
     </div>
@@ -571,7 +565,7 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
         <p>For older hardware, broadly phones from before 2017. Use this only
           if the 64-bit file refuses to install, which Android will say
           plainly when you try.</p>
-        <a class="get" href="bill-arm32.apk" download>Download
+        <a class="get" href="https://github.com/to-ie/split-the-bill/releases/latest/download/bill-arm32.apk" download>Download
           bill-arm32.apk</a>
       </span>
     </div>

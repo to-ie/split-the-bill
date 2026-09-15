@@ -2,6 +2,39 @@
 
 Privacy-first bill splitting for Android. The app lives in [app/](app/).
 
+**Landing page:** https://to-ie.github.io/split-the-bill/
+
+## Publishing the landing page
+
+[.github/workflows/pages.yml](.github/workflows/pages.yml) publishes it on every
+push to `main` that touches `dist/index.html`, `dist/robots.txt` or
+`dist/site/`. It copies those three things into the artifact rather than
+publishing `dist/` wholesale, so the Flutter web build in `dist/web/` and any
+APKs sitting in `dist/` cannot end up on the site. The job fails if either
+appears.
+
+Once, in the repository settings: **Settings, Pages, Source: GitHub Actions**.
+
+## Releasing a build
+
+The APKs are release assets, not files in the repository. Two of them come to
+about sixty megabytes, and committing that on every build would sit in the
+history for good. The download buttons point at
+`releases/latest/download/bill-arm64.apk`, which always resolves to the newest
+release, so the page needs no edit when a new one goes out.
+
+```bash
+cd app && flutter build apk --release --split-per-abi
+cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ../dist/bill-arm64.apk
+cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ../dist/bill-arm32.apk
+
+gh release create v1.0.2 \
+  ../dist/bill-arm64.apk ../dist/bill-arm32.apk \
+  --title "1.0.2" --notes "Offline bill splitting for Android."
+```
+
+Until the first release exists, the download buttons will 404.
+
 ## Try it on your phone
 
 ```bash
