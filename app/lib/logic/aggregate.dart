@@ -143,8 +143,13 @@ GroupTotals aggregate(Group group, String Function(String id) nameOf) {
   for (final s in group.settlements) {
     add(paid, s.from, s.cents);
     add(paid, s.to, -s.cents);
-    note(s.from, 'Settled up with ${nameOf(s.to)}', -s.cents);
-    note(s.to, 'Received from ${nameOf(s.from)}', s.cents);
+    if (s.refund) {
+      note(s.from, 'Handed back to ${nameOf(s.to)}', -s.cents);
+      note(s.to, 'Given back by ${nameOf(s.from)}', s.cents);
+    } else {
+      note(s.from, 'Settled up with ${nameOf(s.to)}', -s.cents);
+      note(s.to, 'Received from ${nameOf(s.from)}', s.cents);
+    }
   }
 
   final everyone = <String>{...share.keys, ...paid.keys}.toList();

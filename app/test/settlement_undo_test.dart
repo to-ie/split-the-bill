@@ -1,4 +1,6 @@
 import 'package:bill/app.dart';
+import 'package:bill/model/models.dart';
+import 'package:bill/parsing/receipt.dart';
 import 'package:bill/logic/receipt_payments.dart';
 import 'package:bill/state/app_state.dart';
 import 'package:flutter/material.dart';
@@ -104,5 +106,58 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.textContaining('Part paid'), findsWidgets);
+  });
+
+  testWidgets('undoing a payment takes its refund back with it', (
+    tester,
+  ) async {
+    final app = AppState.ephemeral();
+    app.friends = const [
+      Friend(id: 'you', name: 'You', color: 1),
+      Friend(id: 'a', name: 'Ana', color: 2),
+    ];
+    app.groups = [
+      Group(
+        id: 'g',
+        name: 'Trip',
+        receipts: [
+          Receipt(
+            id: 'r1',
+            name: 'Dinner',
+            date: '1 Jan',
+            paidBy: 'you',
+            party: const ['you', 'a'],
+            lines: [
+              ReceiptLine(
+                id: 'l1',
+                description: 'Meal',
+                amount: 30,
+                kind: LineKind.item,
+                rawText: 'Meal',
+              ),
+            ],
+            assign: const {
+              'l1': ['you', 'a'],
+            },
+          ),
+        ],
+      ),
+    ];
+
+    app.recordSettlement('g', 'a', 'you', 1500);
+    app.deleteReceipt('g', 'r1', refund: true);
+    expect(app.groupById('g')!.settlements, hasLength(2));
+    expect(app.totalsFor(app.groupById('g')!).allSquare, isTrue);
+
+    // Undo the original payment. The refund that reversed it has to go too,
+    // or a one-way transfer is left standing and invents a debt.
+    app.undoSettlementRecord(
+      'g',
+      const Settlement(from: 'a', to: 'you', cents: 1500),
+    );
+
+    final g = app.groupById('g')!;
+    expect(g.settlements, isEmpty, reason: 'an orphan refund was left behind');
+    expect(app.totalsFor(g).allSquare, isTrue);
   });
 }

@@ -5,8 +5,13 @@ import 'row_grouper.dart';
 /// Money. Tolerates a currency symbol, thousands separators, either decimal
 /// separator, a trailing tax-code letter (common on UK and Irish receipts),
 /// bracketed or signed negatives.
+/// The integer part allows separators but does not require them. Insisting on
+/// them meant a four-figure amount printed plainly - "1200.00", as most tills
+/// print it - was not recognised as money at all, so the biggest line on a
+/// villa or a flight simply vanished, and so did the total. Continental
+/// grouping ("1.200,00") was refused for the same reason.
 final _amountPattern = RegExp(
-  r'^[-−(]?\s*[€£$]?\s*\d{1,3}(?:[,\s]\d{3})*[.,]\d{2}\s*[A-Za-z*]?\)?$',
+  r'^[-−(]?\s*[€£$]?\s*\d+(?:[.,\s]\d{3})*[.,]\d{2}\s*[€£$]?\s*[A-Za-z*]?\)?$',
 );
 
 /// Leading quantity: "2", "2x", "2 X".
@@ -476,7 +481,13 @@ ParsedReceipt parseReceipt(
     // Brief section 12: a weighed row ("0.482 kg @ 2.99/kg") is a continuation
     // of the line above, not a line of its own. Fold it into the previous
     // description so its per-kilo price cannot become a second charge.
-    if (_weighedPattern.hasMatch(description) && lines.isNotEmpty) {
+    // ...but only when it has no price of its own in the price column. A
+    // supermarket prints "BANANAS 1.2kg @ 1.50" with what it came to on the
+    // right, and folding that into the line above threw the item away and
+    // gave its money to whatever was printed before it.
+    if (_weighedPattern.hasMatch(description) &&
+        amount == null &&
+        lines.isNotEmpty) {
       final prev = lines.removeLast();
       lines.add(
         ReceiptLine(

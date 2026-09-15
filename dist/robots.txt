@@ -1,0 +1,8 @@
+# Everything here is meant to be found.
+User-agent: *
+Allow: /
+
+# The builds themselves are large and not worth a crawler's time.
+Disallow: /bill-arm64.apk
+Disallow: /bill-arm32.apk
+Disallow: /web/

@@ -246,9 +246,9 @@ void main() {
     await tapText(tester, 'Delete');
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Already settled against this bill'),
-        findsOneWidget);
-    expect(find.text('Delete and hand the money back'), findsOneWidget);
+    expect(find.textContaining('If you just delete it'), findsOneWidget);
+    expect(find.textContaining('You owe '), findsOneWidget);
+    expect(find.textContaining('Delete and hand back'), findsOneWidget);
     await shot(tester, '09d_delete_settled_bill');
   });
 

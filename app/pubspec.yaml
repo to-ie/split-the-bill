@@ -1,7 +1,7 @@
 name: bill
 description: "Split the Bill - split a receipt without it ever leaving your phone."
 publish_to: 'none'
-version: 1.0.1+2012
+version: 1.0.2+2014
 
 environment:
   sdk: ^3.13.3

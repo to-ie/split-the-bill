@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bill/logic/overpayment.dart';
 import 'package:bill/logic/shares.dart';
 import 'package:bill/model/models.dart';
 import 'package:bill/state/app_state.dart';
@@ -111,6 +112,98 @@ void main() {
     expect(after.settings.currencies, contains('CHF'));
     expect(after.friends.length, source.friends.length);
     expect(after.nameOf('f1'), 'Amara');
+  });
+
+  // ----------------------------------------- upgrading from an older app
+  //
+  // People upgrade. A store written before refunds existed, or before the
+  // "settled" flag was replaced by real payments, still has to open - and
+  // open with the same money in it.
+
+  test('a store written before refunds existed still opens', () async {
+    const old = '''
+{
+  "settings": {"myName": "Theo", "dark": false, "appCurrency": "E",
+               "currencies": ["E"], "pinOn": false},
+  "friends": [{"id": "you", "name": "You", "color": 1},
+              {"id": "a", "name": "Ana", "color": 2}],
+  "groups": [{
+    "id": "g", "name": "Trip", "archived": false, "oneOff": false,
+    "receipts": [{
+      "id": "r1", "name": "Dinner", "comment": "", "date": "1 Jan",
+      "paidBy": "you",
+      "lines": [{"id": "l1", "description": "Meal", "amount": 30.0,
+                 "kind": "item", "rawText": "Meal"}],
+      "assign": {"l1": ["you", "a"]},
+      "party": ["you", "a"]
+    }],
+    "settlements": [{"from": "a", "to": "you", "cents": 1500}]
+  }]
+}''';
+
+    final app = AppState(
+      loader: () async => old as String?,
+      saver: (_) async {},
+      quarantine: (_) async {},
+      sweepQuarantinedAt: () async {},
+      sweepPhotos: () async {},
+      discardPhotoAt: (_) async {},
+    );
+    await app.load();
+
+    expect(app.storeWasUnreadable, isFalse);
+    final g = app.groupById('g')!;
+    expect(g.settlements, hasLength(1));
+    expect(g.settlements.single.refund, isFalse,
+        reason: 'an old payment must not be mistaken for a refund');
+    expect(g.settlements.single.cents, 1500);
+
+    // And the money reads the same as it always did.
+    final t = app.totalsFor(g);
+    expect(t.allSquare, isTrue);
+    expect(t.people.fold(0, (s, p) => s + p.netCents), 0);
+    expect(overpaidBy(g), isEmpty);
+  });
+
+  test('a store still carrying the old settled flag is converted', () async {
+    const old = '''
+{
+  "settings": {"myName": "", "dark": false, "appCurrency": "E",
+               "currencies": ["E"], "pinOn": false},
+  "friends": [{"id": "you", "name": "You", "color": 1},
+              {"id": "a", "name": "Ana", "color": 2}],
+  "groups": [{
+    "id": "g", "name": "Trip", "archived": false, "oneOff": false,
+    "receipts": [{
+      "id": "r1", "name": "Dinner", "comment": "", "date": "1 Jan",
+      "paidBy": "you", "settled": true,
+      "lines": [{"id": "l1", "description": "Meal", "amount": 30.0,
+                 "kind": "item", "rawText": "Meal"}],
+      "assign": {"l1": ["you", "a"]},
+      "party": ["you", "a"]
+    }],
+    "settlements": []
+  }]
+}''';
+
+    final app = AppState(
+      loader: () async => old as String?,
+      saver: (_) async {},
+      quarantine: (_) async {},
+      sweepQuarantinedAt: () async {},
+      sweepPhotos: () async {},
+      discardPhotoAt: (_) async {},
+    );
+    await app.load();
+
+    final g = app.groupById('g')!;
+    // The flag became a real payment of what was outstanding.
+    expect(g.settlements, hasLength(1));
+    expect(g.settlements.single.from, 'a');
+    expect(g.settlements.single.to, 'you');
+    expect(g.settlements.single.cents, 1500);
+    expect(g.settlements.single.refund, isFalse);
+    expect(app.totalsFor(g).allSquare, isTrue);
   });
 
   test('the whole store is valid JSON with no surprises', () async {

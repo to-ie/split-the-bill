@@ -114,12 +114,21 @@ Map<String, ReceiptPayment> receiptPayments(Group group) {
   final totals = aggregate(group, (id) => id);
   final nets = {for (final p in totals.people) p.friendId: p.netCents};
 
-  // The same positions with the recorded payments taken back out again. The
-  // gap between the two is the only thing that counts as money handed over.
-  final before = {...nets};
+  // What each person is out of pocket from settling up: what they handed over
+  // to clear a debt, less everything that has come back to them.
+  //
+  // This used to be inferred by differencing the person's whole-group net
+  // before and after the settlements. That reads the right number only while
+  // they are still in debt: the moment a later bill put them in credit the
+  // difference collapsed to zero, and a bill they had genuinely paid cash for
+  // quietly stopped saying so. What somebody handed over is a fact about the
+  // payments, not about where the group happens to stand afterwards.
+  final handedOver = <String, int>{};
   for (final s in group.settlements) {
-    before[s.from] = (before[s.from] ?? 0) + s.cents;
-    before[s.to] = (before[s.to] ?? 0) - s.cents;
+    handedOver[s.to] = (handedOver[s.to] ?? 0) - s.cents;
+    if (!s.refund) {
+      handedOver[s.from] = (handedOver[s.from] ?? 0) + s.cents;
+    }
   }
 
   // Everything each person owes somebody else, in the order the bills were
@@ -158,7 +167,6 @@ Map<String, ReceiptPayment> receiptPayments(Group group) {
   debts.forEach((person, owed) {
     final gross = owed.fold(0, (sum, d) => sum + d.$2);
     final owes = nets[person] ?? 0;
-    final owedBefore = before[person] ?? 0;
 
     // Everything of theirs that is no longer outstanding, however it got
     // that way.
@@ -166,10 +174,10 @@ Map<String, ReceiptPayment> receiptPayments(Group group) {
     if (credit < 0) credit = 0;
     if (credit > gross) credit = gross;
 
-    // Of that, the part they actually paid: how far settling up moved them
-    // towards zero. Someone who was never in the red cannot have paid
-    // anything down, and someone who received money has not paid either.
-    var cash = (owedBefore > 0 ? owedBefore : 0) - (owes > 0 ? owes : 0);
+    // Of that, the part they actually handed over. Capped at the credit,
+    // because money paid beyond what they owed belongs to the overpayment
+    // machinery, not to a badge on a bill.
+    var cash = handedOver[person] ?? 0;
     if (cash < 0) cash = 0;
     if (cash > credit) cash = credit;
 

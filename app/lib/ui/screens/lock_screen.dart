@@ -72,91 +72,110 @@ class _LockScreenState extends State<LockScreen>
 
     return Scaffold(
       backgroundColor: c.bg,
+      // In landscape, or on a short screen at large text, the keypad is
+      // taller than the viewport. It used to be clipped off the bottom, which
+      // left the app impossible to unlock without turning the phone. The
+      // Spacers still centre everything when there is room; when there is
+      // not, it scrolls.
       body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-            const _Logo(),
-            const SizedBox(height: 18),
-            Text(
-              _wrong ? 'Wrong PIN' : 'Enter your PIN',
-              style: ui(17, 900, color: _wrong ? c.errorFg : c.ink),
-            ),
-            const SizedBox(height: 18),
-            AnimatedBuilder(
-              animation: _shake,
-              builder: (context, child) {
-                // Two quick cycles left and right, decaying to nothing.
-                final t = _shake.value;
-                final dx = t == 0
-                    ? 0.0
-                    : (1 - t) * 10 * (t * 8 % 2 < 1 ? 1 : -1);
-                return Transform.translate(offset: Offset(dx, 0), child: child);
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < 4; i++)
-                    Container(
-                      width: 14,
-                      height: 14,
-                      margin: const EdgeInsets.symmetric(horizontal: 7),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: i < _entered.length
-                            ? (_wrong ? c.errorFg : Brand.green)
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: i < _entered.length
-                              ? (_wrong ? c.errorFg : Brand.green)
-                              : c.line2,
-                          width: 2,
-                        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    const Spacer(),
+                    const _Logo(),
+                    const SizedBox(height: 18),
+                    Text(
+                      _wrong ? 'Wrong PIN' : 'Enter your PIN',
+                      style: ui(17, 900, color: _wrong ? c.errorFg : c.ink),
+                    ),
+                    const SizedBox(height: 18),
+                    AnimatedBuilder(
+                      animation: _shake,
+                      builder: (context, child) {
+                        // Two quick cycles left and right, decaying to nothing.
+                        final t = _shake.value;
+                        final dx = t == 0
+                            ? 0.0
+                            : (1 - t) * 10 * (t * 8 % 2 < 1 ? 1 : -1);
+                        return Transform.translate(
+                          offset: Offset(dx, 0),
+                          child: child,
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (var i = 0; i < 4; i++)
+                            Container(
+                              width: 14,
+                              height: 14,
+                              margin: const EdgeInsets.symmetric(horizontal: 7),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: i < _entered.length
+                                    ? (_wrong ? c.errorFg : Brand.green)
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: i < _entered.length
+                                      ? (_wrong ? c.errorFg : Brand.green)
+                                      : c.line2,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                ],
-              ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(36, 0, 36, 10),
-              child: Column(
-                children: [
-                  for (final row in const [
-                    ['1', '2', '3'],
-                    ['4', '5', '6'],
-                    ['7', '8', '9'],
-                  ])
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [for (final d in row) _Key(d, () => _press(d))],
-                    ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      const _KeySpacer(),
-                      _Key('0', () => _press('0')),
-                      _Key(
-                        '',
-                        _backspace,
-                        icon: Icons.backspace_outlined,
-                        semanticLabel: 'Delete',
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(36, 0, 36, 10),
+                      child: Column(
+                        children: [
+                          for (final row in const [
+                            ['1', '2', '3'],
+                            ['4', '5', '6'],
+                            ['7', '8', '9'],
+                          ])
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                for (final d in row) _Key(d, () => _press(d)),
+                              ],
+                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              const _KeySpacer(),
+                              _Key('0', () => _press('0')),
+                              _Key(
+                                '',
+                                _backspace,
+                                icon: Icons.backspace_outlined,
+                                semanticLabel: 'Delete',
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(28, 0, 28, 18),
+                      child: Text(
+                        'The PIN keeps the phone out of other hands. It is not '
+                        'encryption.',
+                        textAlign: TextAlign.center,
+                        style: ui(11.5, 600, color: c.muted, height: 1.4),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(28, 0, 28, 18),
-              child: Text(
-                'The PIN keeps the phone out of other hands. It is not '
-                'encryption.',
-                textAlign: TextAlign.center,
-                style: ui(11.5, 600, color: c.muted, height: 1.4),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

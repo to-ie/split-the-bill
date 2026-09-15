@@ -106,15 +106,40 @@ class _BillAppState extends State<BillApp> with WidgetsBindingObserver {
         title: 'Split the Bill',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(dark),
-        home: _locked
-            ? LockScreen(
-                verify: widget.state.verifyPin,
-                onUnlocked: () => setState(() => _unlocked = true),
-              )
-            : const HomeScreen(),
+        home: const HomeScreen(),
+        // The lock goes OVER everything, rather than being the bottom route.
+        //
+        // It used to be expressed as `home:`, which is only the root of the
+        // navigator stack. Anything pushed on top of it - a group, a receipt,
+        // the summary with every figure in it - stayed on screen when the app
+        // re-locked, so the PIN only blocked the app if you happened to be on
+        // the home screen when you put the phone down. Everywhere else it
+        // blocked nothing at all.
+        //
+        // As an overlay it also keeps the user's place: unlocking puts them
+        // back on the screen they were reading, instead of at the beginning.
         builder: (context, child) => ToastHost(
+          // Expand explicitly: with the app's screens offstage there is no
+          // unpositioned child left to give the Stack a size, and it
+          // collapsed to nothing - which left the lock screen painted but
+          // zero-sized, so its keypad could not be tapped.
           child: Stack(
-            children: [child!, if (_coverForPrivacy) const PrivacyCover()],
+            fit: StackFit.expand,
+            children: [
+              // Offstage rather than merely covered: while the app is locked
+              // the screens underneath are not painted, not hit-tested and
+              // not read out by a screen reader, and they cannot appear for a
+              // frame during a transition. Their state and the navigator
+              // stack survive, so unlocking returns the user to the screen
+              // they were on.
+              Offstage(offstage: _locked, child: child!),
+              if (_locked)
+                LockScreen(
+                  verify: widget.state.verifyPin,
+                  onUnlocked: () => setState(() => _unlocked = true),
+                ),
+              if (_coverForPrivacy) const PrivacyCover(),
+            ],
           ),
         ),
       ),

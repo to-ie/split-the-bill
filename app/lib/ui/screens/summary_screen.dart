@@ -77,41 +77,21 @@ class SummaryScreen extends StatelessWidget {
 
           if (group != null && !group.oneOff) ...[
             const SizedBox(height: R.gap),
-            Material(
-              color: c.okBg,
-              borderRadius: BorderRadius.circular(R.small),
-              child: InkWell(
+            // Says where this bill has landed. It used to be a second way to
+            // reach the group total; Done goes there now, so a control that
+            // did the same thing beside it was just noise.
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: c.okBg,
                 borderRadius: BorderRadius.circular(R.small),
-                onTap: () {
-                  // Resolve the navigator before popping: after popUntil this
-                  // route is on its way out, and looking it up again through a
-                  // context that is being disposed is asking for trouble.
-                  final navigator = Navigator.of(context);
-                  final id = app.finishFlow();
-                  navigator.popUntil((r) => r.isFirst);
-                  navigator.push(fadeUpRoute(GroupSummaryScreen(groupId: id)));
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Part of ${group.name} · see the group total',
-                          style: ui(13, 800, color: c.okFg),
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 20,
-                        color: c.okFg,
-                      ),
-                    ],
-                  ),
-                ),
+              ),
+              child: Text(
+                'Part of ${group.name}. Done shows the group total.',
+                style: ui(13, 800, color: c.okFg),
               ),
             ),
           ],
@@ -149,8 +129,19 @@ class SummaryScreen extends StatelessWidget {
           PrimaryButton(
             label: 'Done',
             onPressed: () {
-              app.finishFlow();
-              Navigator.of(context).popUntil((r) => r.isFirst);
+              // Finishing a bill lands on the group it belongs to, not back
+              // at the start. The question anybody has after adding a receipt
+              // is what it did to the totals, and that is the next screen.
+              //
+              // A one-off split has no group worth looking at, so it goes
+              // home as before.
+              final navigator = Navigator.of(context);
+              final id = app.finishFlow();
+              final group = app.groupById(id);
+              navigator.popUntil((r) => r.isFirst);
+              if (group != null && !group.oneOff) {
+                navigator.push(fadeUpRoute(GroupSummaryScreen(groupId: id)));
+              }
             },
           ),
           const SizedBox(height: R.gap),

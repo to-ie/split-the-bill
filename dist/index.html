@@ -3,8 +3,113 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Split the Bill — the receipt splitter that keeps your receipts</title>
-<meta name="description" content="Photograph a receipt, split it with friends, settle up. Everything happens on your phone. No accounts, no servers, no network permission.">
+<title>Split the Bill · offline bill splitter for Android</title>
+<meta name="description" content="Photograph a receipt, tap who had what, settle up. A free Android bill splitting app that works offline: no account, no servers, and no network permission at all.">
+<meta name="author" content="Split the Bill">
+
+<!-- WHEN THIS GOES ON A DOMAIN, set it in three places below: the canonical
+     link, og:url and og:image, and the "url" in the JSON-LD. They have to be
+     absolute, so they cannot be filled in until the address is known. Sharing
+     previews and search results will not work properly until they are. -->
+<!-- <link rel="canonical" href="https://YOUR-DOMAIN/"> -->
+
+<meta name="theme-color" content="#F7F4EE" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#14181F" media="(prefers-color-scheme:dark)">
+
+<!-- A receipt, drawn inline so the page still asks the network for nothing.
+     Without it every visit fetches /favicon.ico and gets a 404. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2310A374'/%3E%3Cg fill='white'%3E%3Crect x='8' y='9' width='16' height='3' rx='1.5'/%3E%3Crect x='8' y='15' width='16' height='3' rx='1.5'/%3E%3Crect x='8' y='21' width='9' height='3' rx='1.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="site/logo.png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Split the Bill">
+<meta property="og:title" content="Split the Bill · offline bill splitter for Android">
+<meta property="og:description" content="Photograph a receipt, tap who had what, settle up. Free, no account, and it never touches the network.">
+<meta property="og:image" content="site/shots/home.jpg">
+<meta property="og:image:alt" content="The Split the Bill home screen, listing a trip and a coffee run">
+<meta property="og:locale" content="en_IE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Split the Bill · offline bill splitter for Android">
+<meta name="twitter:description" content="Photograph a receipt, tap who had what, settle up. Free, no account, and it never touches the network.">
+<meta name="twitter:image" content="site/shots/home.jpg">
+
+<!-- Structured data. The @context is an identifier, not a fetch: no browser
+     requests schema.org, so the page still makes no network calls. It is what
+     lets a search engine, or something answering a question on someone's
+     behalf, state plainly what this is, what it costs and what it needs. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Split the Bill",
+  "applicationCategory": "FinanceApplication",
+  "applicationSubCategory": "Bill splitting",
+  "operatingSystem": "Android 7.0 and later",
+  "softwareVersion": "1.0.2",
+  "installUrl": "bill-arm64.apk",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "permissions": "Camera. No internet permission is requested.",
+  "description": "An Android app that photographs a receipt, reads it on the device, splits it by item between friends and works out the fewest payments that square everybody up. There is no account, no server and no network permission.",
+  "featureList": [
+    "Reads a receipt with on-device text recognition, offline",
+    "Splits by item rather than dividing the total",
+    "Groups several bills together across a trip",
+    "Works out the fewest payments that settle everybody up",
+    "Optional PIN, stored as a salted hash",
+    "No account, no analytics and no network permission"
+  ],
+  "screenshot": [
+    "site/shots/home.jpg",
+    "site/shots/check.jpg",
+    "site/shots/assign.jpg",
+    "site/shots/summary.jpg"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Split the Bill free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free, there is nothing to buy inside it, there are no adverts and there is no account to create." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work without an internet connection?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The app has no internet permission at all, so Android will not let it reach the network whatever it tries. The text recognition model ships inside the app, so scanning a receipt works with wifi and mobile data switched off." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where are my receipts stored?",
+      "acceptedAnswer": { "@type": "Answer", "text": "On the phone, in the app's own private storage. Nothing is uploaded, and Android's automatic backup to Google Drive is switched off, so they are not copied anywhere either." }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my bills if I uninstall the app?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They are deleted with it. Because nothing is backed up or synced, there is no copy to restore and a new phone starts empty." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which file should I download, 64-bit or 32-bit?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The 64-bit one, unless your phone is older than about 2017. If the 64-bit file will not install, Android says so plainly, and the 32-bit file is the one to use instead." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it on the Google Play Store?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It is installed by downloading the APK directly, which Android calls an unknown source and will warn about. An F-Droid listing is planned." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it split a bill evenly or by item?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Either. You can assign each line to whoever ordered it, share a line between several people, or split the whole bill evenly. Extras and discounts are shared by whoever agrees to them." }
+    }
+  ]
+}
+</script>
 
 <style>
 /* The page loads nothing from anywhere. Fonts are served from here, like
@@ -29,6 +134,10 @@
     --ok-bg:#143528;
   }
 }
+
+/* Tells the browser this page has both schemes, so system colours, form
+   controls and scrollbars follow the one in use. */
+:root{color-scheme:light dark}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -142,6 +251,51 @@ h2{font-size:clamp(26px,4.4vw,38px);margin-top:10px}
 
 
 /* -------------------------------------------------------------- close */
+/* ------------------------------------------------------------------ faq */
+.qa{margin-top:clamp(22px,3.5vw,30px);max-width:72ch}
+.qa h3{font-size:16.5px;margin-top:22px}
+.qa h3:first-child{margin-top:0}
+.qa p{color:var(--mut);font-weight:600;font-size:14.5px;margin-top:7px}
+
+/* --------------------------------------------------------- other options */
+.more{background:none;border:0;padding:0;font:inherit;color:inherit;
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.more:hover{color:var(--ink)}
+
+/* The colour is not optional. A dialog carries a UA rule of
+   `color: CanvasText`, which beats anything it would otherwise inherit, and
+   CanvasText stays black unless the page says it deals in both schemes. The
+   sheet therefore drew black text on its own dark background. */
+dialog{border:0;padding:0;background:transparent;color:var(--ink);
+  max-width:min(440px,92vw);width:100%}
+dialog::backdrop{background:rgba(10,14,24,.55)}
+.sheet{background:var(--card);border:1.5px solid var(--line);
+  border-radius:20px;padding:clamp(20px,4vw,26px);text-align:left}
+.sheet h3{font-size:19px}
+.sheet .why{color:var(--mut);font-weight:600;font-size:13.5px;margin-top:8px}
+.opt{display:flex;gap:14px;align-items:flex-start;margin-top:18px;
+  padding-top:18px;border-top:1.5px solid var(--line)}
+.opt:first-of-type{border-top:0;padding-top:0}
+.opt .mark{flex:none;width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center}
+.opt .mark.droid{background:#1976D2}
+.opt .mark.apk{background:var(--ok-bg)}
+.opt b{display:block;font-size:15px}
+.opt .tag{display:inline-block;margin-left:7px;font-size:10.5px;
+  font-weight:900;letter-spacing:.4px;text-transform:uppercase;
+  padding:2px 7px;border-radius:99px;background:var(--ok-bg);
+  color:var(--green-dark);vertical-align:2px}
+@media (prefers-color-scheme:dark){.opt .tag{color:#4CCB9A}}
+.opt .tag.soon{background:var(--chip);color:var(--mut)}
+.opt p{color:var(--mut);font-weight:600;font-size:13px;margin-top:4px}
+.opt a.get{display:inline-block;margin-top:9px;font-weight:900;
+  font-size:13.5px;color:var(--green-dark);text-decoration:underline;
+  text-underline-offset:3px}
+@media (prefers-color-scheme:dark){.opt a.get{color:#4CCB9A}}
+.sheet .shut{margin-top:22px;width:100%;border:0;border-radius:13px;
+  background:var(--chip);color:var(--ink);font:inherit;font-weight:900;
+  font-size:14.5px;padding:12px;cursor:pointer}
+
 footer{border-top:1.5px solid var(--line);margin-top:clamp(40px,6vw,60px);
   padding-block:34px 54px;
   color:var(--mut);font-size:13.5px;font-weight:700;text-align:center}
@@ -152,7 +306,8 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
 <body>
 
 <header class="wrap hero">
-  <img class="logo" src="site/logo.png" alt="Split the Bill">
+  <img class="logo" src="site/logo.png" alt="Split the Bill" width="420"
+       height="363" fetchpriority="high" decoding="async">
   <h1>Split the bill<br>in seconds.</h1>
   <p class="sub">Photograph the receipt. Tap who had what. Settle up.</p>
 
@@ -185,31 +340,37 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
     </span>
   </div>
   <p class="note">Free. No account. Local.</p>
-  <p class="note small">Version 1.0.1 · <a href="bill-arm32.apk">older 32-bit
-    phones</a></p>
+  <p class="note small">Version 1.0.2 ·
+    <button type="button" class="more" data-opens="options">Other
+    options</button></p>
 
   <div class="shots">
     <div class="shot small">
-      <div class="phone small"><img src="site/shots/home.png"
+      <div class="phone small"><img src="site/shots/home.jpg" width="540" height="1080"
+        decoding="async"
         alt="The home screen, listing a trip and a coffee run"></div>
       <p class="caption">Your bills, grouped</p>
     </div>
     <div class="shot">
-      <div class="phone"><img src="site/shots/check.png"
+      <div class="phone"><img src="site/shots/check.jpg" width="540" height="1080"
+        decoding="async"
         alt="The line items read from the receipt, with a running total"></div>
       <p class="caption">Check what it read</p>
     </div>
     <div class="shot small">
-      <div class="phone small"><img src="site/shots/assign.png"
+      <div class="phone small"><img src="site/shots/assign.jpg" width="540" height="1080"
+        decoding="async"
         alt="Each item with the faces of the people sharing it"></div>
       <p class="caption">Tap who had what</p>
     </div>
   </div>
 </header>
 
-<section class="wrap">
+<main>
+
+<section class="wrap" aria-labelledby="how">
   <p class="eyebrow">How it works</p>
-  <h2>Three taps and a photograph.</h2>
+  <h2 id="how">Three taps and a photograph.</h2>
   <p class="lede">The reading happens on the phone, in about a second, using
     the same text recognition your camera app uses.</p>
 
@@ -218,14 +379,14 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
       <div class="step">1</div>
       <h3>Photograph the receipt</h3>
       <p>The text is read on the device. The photo is deleted the moment it
-        has been read — it is never uploaded, and never kept.</p>
+        has been read. It is never uploaded and it is never kept.</p>
     </div>
     <div class="card">
       <div class="step">2</div>
       <h3>Check what it read</h3>
       <p>Thermal paper is hard to read, so correcting a line is the main
-        screen, not a fallback. A running total tells you when the numbers
-        match the receipt.</p>
+        screen rather than something buried away. A running total tells you
+        when the numbers match the receipt.</p>
     </div>
     <div class="card">
       <div class="step">3</div>
@@ -236,10 +397,10 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
   </div>
 </section>
 
-<section class="wrap">
+<section class="wrap" aria-labelledby="why">
   <div class="privacy">
     <p class="eyebrow">Why it is built this way</p>
-    <h2>Your receipts are nobody else's business.</h2>
+    <h2 id="why">Your receipts are nobody else's business.</h2>
     <p class="lede">A receipt says where you were, when, with how many people,
       and what you can afford. Most splitting apps put that on someone's
       server. This one has nowhere to put it.</p>
@@ -251,7 +412,8 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
         the code tries to do.</span></li>
       <li><span class="tick">✓</span><span>
         <b>No accounts, no sign-in</b>
-        Nothing to create, nothing to leak, nothing to delete later.</span></li>
+        There is no account to make, and nothing held anywhere to
+        leak.</span></li>
       <li><span class="tick">✓</span><span>
         <b>Text recognition on the device</b>
         The model ships inside the app. Turn off wifi and mobile data and
@@ -259,7 +421,7 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
       <li><span class="tick">✓</span><span>
         <b>Backup switched off</b>
         Android would otherwise copy the app's data to your Google Drive.
-        It is refused, in both directions.</span></li>
+        Both the old flag and the newer rules file say no.</span></li>
       <li><span class="tick">✓</span><span>
         <b>Sharing is copy and paste</b>
         A plain-text summary goes to your clipboard. You choose where it
@@ -273,34 +435,78 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
   </div>
 </section>
 
-<section class="wrap">
+<section class="wrap" aria-labelledby="groups">
   <p class="eyebrow">Groups</p>
-  <h2>For a dinner, or a whole trip.</h2>
-  <p class="lede">One bill splits in seconds. A fortnight of them keeps
-    together in a group, so you can see who paid for what and let the app
-    work out the fewest payments that square everybody up.</p>
+  <h2 id="groups">For a dinner, or a whole trip.</h2>
+  <p class="lede">One bill splits in seconds. A fortnight of them stays together in a
+    group, so you can see who paid for what and let the app work out the
+    fewest payments that square everybody up.</p>
 
   <div class="shots">
     <div class="shot">
-      <div class="phone"><img src="site/shots/summary.png"
+      <div class="phone"><img src="site/shots/summary.jpg" width="540" height="1080"
+        decoding="async" loading="lazy"
         alt="The group summary, showing who pays whom and how much"></div>
       <p class="caption">Settle up in the fewest payments</p>
     </div>
     <div class="shot small">
-      <div class="phone small"><img src="site/shots/home-dark.png"
+      <div class="phone small"><img src="site/shots/home-dark.jpg" width="540" height="1080"
+        decoding="async" loading="lazy"
         alt="The home screen in dark mode, listing two groups"></div>
       <p class="caption">Light and dark</p>
     </div>
   </div>
 </section>
 
+<section class="wrap" aria-labelledby="faq">
+  <p class="eyebrow">Questions</p>
+  <h2 id="faq">The things people ask first.</h2>
+
+  <div class="qa">
+    <h3>Is Split the Bill free?</h3>
+    <p>Yes. It is free, there is nothing to buy inside it, there are no
+      adverts, and there is no account to create.</p>
+
+    <h3>Does it work without an internet connection?</h3>
+    <p>Yes. The app has no internet permission at all, so Android will not let
+      it reach the network whatever it tries. The text recognition ships
+      inside the app, so scanning works with wifi and mobile data off.</p>
+
+    <h3>Where are my receipts stored?</h3>
+    <p>On the phone, in the app's own private storage. Nothing is uploaded,
+      and Android's automatic backup to Google Drive is switched off, so they
+      are not copied anywhere either.</p>
+
+    <h3>What happens to my bills if I uninstall the app?</h3>
+    <p>They go with it. Because nothing is backed up or synced, there is no
+      copy to restore and a new phone starts empty.</p>
+
+    <h3>Which file should I download, 64-bit or 32-bit?</h3>
+    <p>The 64-bit one, unless your phone is older than about 2017. If it will
+      not install, Android says so plainly, and the 32-bit file is the one to
+      use instead.</p>
+
+    <h3>Is it on the Google Play Store?</h3>
+    <p>No. You install it by downloading the file directly, which Android
+      calls an unknown source and will warn about. An F-Droid listing is
+      planned.</p>
+
+    <h3>Does it split a bill evenly or by item?</h3>
+    <p>Either. Assign each line to whoever ordered it, share a line between
+      several people, or split the whole bill evenly. Extras and discounts are
+      shared by whoever agrees to them.</p>
+  </div>
+</section>
+
+</main>
+
 <section class="wrap">
   <div class="card" style="text-align:center;padding:38px 24px">
     <h2 style="font-size:clamp(24px,4vw,32px)">Try it now</h2>
     <p class="lede" style="margin:12px auto 0">
       Sideloaded, so there is no store listing and no review queue. Android
-      will warn you that it is from an unknown source — that is what
-      installing outside the Play Store looks like.</p>
+      will warn you that it is from an unknown source. That warning is
+      normal for anything installed outside the Play Store.</p>
     <div class="cta">
       <a class="btn btn-primary" href="bill-arm64.apk" download>
       <svg width="26" height="28" viewBox="0 0 24 26" aria-hidden="true">
@@ -317,10 +523,100 @@ footer .made{margin-top:8px;font-size:12.5px;font-weight:600;opacity:.85}
         <span><small>Coming soon</small><b>iPhone</b></span>
       </span>
     </div>
-    <p class="note small">Version 1.0.1 · <a href="bill-arm32.apk">older 32-bit
-      phones</a></p>
+    <p class="note small">Version 1.0.2 ·
+      <button type="button" class="more" data-opens="options">Other
+      options</button></p>
   </div>
 </section>
+
+<dialog id="options" aria-labelledby="options-title">
+  <div class="sheet">
+    <h3 id="options-title">Other ways to install</h3>
+    <p class="why">Most people want the first one. The others are here in case
+      it will not install, or you would rather not handle an APK at all.</p>
+
+    <div class="opt">
+      <span class="mark apk" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="#0B845E" stroke-width="2.2" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M12 3v12M7 11l5 5 5-5M4 19h16"/>
+        </svg>
+      </span>
+      <span>
+        <b>Android, 64-bit<span class="tag">Most phones</span></b>
+        <p>Anything made in roughly the last eight years. If you are not sure,
+          this is the one.</p>
+        <a class="get" href="bill-arm64.apk" download>Download
+          bill-arm64.apk</a>
+      </span>
+    </div>
+
+    <div class="opt">
+      <span class="mark apk" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="#0B845E" stroke-width="2.2" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M12 3v12M7 11l5 5 5-5M4 19h16"/>
+        </svg>
+      </span>
+      <span>
+        <b>Android, 32-bit</b>
+        <p>For older hardware, broadly phones from before 2017. Use this only
+          if the 64-bit file refuses to install, which Android will say
+          plainly when you try.</p>
+        <a class="get" href="bill-arm32.apk" download>Download
+          bill-arm32.apk</a>
+      </span>
+    </div>
+
+    <div class="opt">
+      <span class="mark droid" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
+          <path d="M8.1 4.3 7.3 2.9a.42.42 0 0 1 .73-.42l.84 1.45a6.4 6.4 0 0 1
+                   6.26 0l.84-1.45a.42.42 0 0 1 .73.42l-.8 1.4A5.2 5.2 0 0 1
+                   18 8.6H6a5.2 5.2 0 0 1 2.1-4.3Zm1.6 2.5a.62.62 0 1 0 0-1.24
+                   .62.62 0 0 0 0 1.24Zm4.6 0a.62.62 0 1 0 0-1.24.62.62 0 0 0 0
+                   1.24Z"/>
+          <rect x="6" y="9.6" width="12" height="8.4" rx="1.3"/>
+          <rect x="2.4" y="9.6" width="2.6" height="6.4" rx="1.3"/>
+          <rect x="19" y="9.6" width="2.6" height="6.4" rx="1.3"/>
+          <rect x="8.2" y="18.6" width="2.6" height="3.4" rx="1.3"/>
+          <rect x="13.2" y="18.6" width="2.6" height="3.4" rx="1.3"/>
+        </svg>
+      </span>
+      <span>
+        <b>F-Droid<span class="tag soon">Coming soon</span></b>
+        <p>An app shop that builds everything from source and carries only free
+          software. It suits this app, and it handles updates for you. Split
+          the Bill is not listed there yet.</p>
+      </span>
+    </div>
+
+    <button type="button" class="shut" data-shuts>Close</button>
+  </div>
+</dialog>
+
+<script>
+// Short enough to read in full. Escape, focus and the backdrop are the
+// dialog element's own job; this only opens it and closes it.
+(function () {
+  var sheet = document.getElementById('options');
+  if (!sheet || !sheet.showModal) return;
+
+  var open = document.querySelectorAll('[data-opens="options"]');
+  for (var i = 0; i < open.length; i++) {
+    open[i].addEventListener('click', function () { sheet.showModal(); });
+  }
+  sheet.querySelector('[data-shuts]').addEventListener('click', function () {
+    sheet.close();
+  });
+  // A click on the backdrop lands on the dialog itself, not on the sheet.
+  sheet.addEventListener('click', function (e) {
+    if (e.target === sheet) sheet.close();
+  });
+})();
+</script>
 
 <footer class="wrap">
   <p>Free, no ads, everything stays on your phone.</p>

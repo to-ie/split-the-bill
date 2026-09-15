@@ -24,22 +24,29 @@ class Draft {
   /// back. Null for a bill being created.
   final Receipt? original;
 
+  /// Typed in rather than photographed: there is no receipt to check against,
+  /// so the screens that talk about what was read say something else.
+  final bool manual;
+
   const Draft({
     required this.groupId,
     required this.receipt,
     this.isNew = true,
     this.original,
+    this.manual = false,
   });
 
   Draft copyWith({
     String? groupId,
     Receipt? receipt,
     bool clearGroup = false,
+    bool? manual,
   }) => Draft(
     groupId: clearGroup ? null : (groupId ?? this.groupId),
     receipt: receipt ?? this.receipt,
     isNew: isNew,
     original: original,
+    manual: manual ?? this.manual,
   );
 }
 
@@ -51,6 +58,7 @@ class AppState extends ChangeNotifier {
   final Future<void> Function(String) _write;
 
   final Future<void> Function(String) _quarantine;
+  final Future<void> Function() _sweepQuarantined;
   final Future<void> Function() _sweep;
   final Future<void> Function(String) _discardPhoto;
 
@@ -58,11 +66,13 @@ class AppState extends ChangeNotifier {
     Future<String?> Function()? loader,
     Future<void> Function(String)? saver,
     Future<void> Function(String)? quarantine,
+    Future<void> Function()? sweepQuarantinedAt,
     Future<void> Function()? sweepPhotos,
     Future<void> Function(String)? discardPhotoAt,
   }) : _load = loader ?? loadRaw,
        _write = saver ?? saveRaw,
        _quarantine = quarantine ?? saveCorrupt,
+       _sweepQuarantined = sweepQuarantinedAt ?? sweepQuarantinedStores,
        _sweep = sweepPhotos ?? sweepPhotoCache,
        _discardPhoto = discardPhotoAt ?? discardPhoto;
 
@@ -71,6 +81,7 @@ class AppState extends ChangeNotifier {
     loader: () async => null,
     saver: (_) async {},
     quarantine: (_) async {},
+    sweepQuarantinedAt: () async {},
     sweepPhotos: () async {},
     discardPhotoAt: (_) async {},
   );
@@ -86,6 +97,16 @@ class AppState extends ChangeNotifier {
   /// Set when the store existed but could not be parsed. The unreadable file
   /// is kept alongside the new one rather than being overwritten.
   bool storeWasUnreadable = false;
+
+  /// Set when the saved data could not be read at all - the read threw, or
+  /// took so long it was abandoned. Distinct from [storeWasUnreadable], which
+  /// means the file was read but was not valid.
+  ///
+  /// While this is set nothing is written. A read that fails looks exactly
+  /// like a first run, and seeding an empty app and then saving over the top
+  /// would destroy everything the person had - which is the one failure this
+  /// app must never have.
+  bool storeUnavailable = false;
 
   /// Cheap counter so screens can key off "something changed".
   int revision = 0;
@@ -168,6 +189,8 @@ class AppState extends ChangeNotifier {
 
   void _save() {
     _bump();
+    // Never write over data we were unable to read.
+    if (storeUnavailable) return;
     final json = jsonEncode(toJson());
     _writes = _writes.then((_) => _write(json)).catchError((Object _) {});
   }
@@ -194,6 +217,9 @@ class AppState extends ChangeNotifier {
 
   /// Stores a salted hash of the PIN, never the PIN.
   void setPin(String pin) {
+    // Only what the unlock keypad can produce. Anything else would be a PIN
+    // that cannot be entered, and there is no way back in.
+    if (!RegExp(r'^\d{4}$').hasMatch(pin)) return;
     final salt = _newSalt();
     settings = settings.copyWith(
       pinSalt: salt,
@@ -361,10 +387,18 @@ class AppState extends ChangeNotifier {
   /// editing the originals.
   void deleteReceipt(String groupId, String receiptId, {bool refund = false}) {
     _updateGroup(groupId, (g) {
+      // Who this particular deletion leaves holding money, worked out before
+      // it happens. Refunding everybody instead would sweep up overpayments
+      // the user has already been shown and chosen to leave standing, while
+      // the button named only this deletion's share of it.
+      final caused = refund
+          ? overpaymentIfDeleted(g, receiptId).keys.toSet()
+          : const <String>{};
+
       final next = g.copyWith(
         receipts: g.receipts.where((r) => r.id != receiptId).toList(),
       );
-      return refund ? withOverpaymentsRefunded(next) : next;
+      return refund ? withOverpaymentsRefundedFor(next, caused) : next;
     });
   }
 
@@ -377,6 +411,24 @@ class AppState extends ChangeNotifier {
     final g = groupById(groupId);
     if (g == null) return const {};
     return overpaymentIfDeleted(g, receiptId);
+  }
+
+  /// What deleting this bill would do to everybody's balance.
+  List<BalanceShift> shiftIfReceiptDeleted(String groupId, String receiptId) {
+    final g = groupById(groupId);
+    if (g == null) return const [];
+    return shiftIfDeleted(g, receiptId);
+  }
+
+  /// "square", "owes 12.00", "gets back 12.00" - how a net reads.
+  ///
+  /// Takes the person so that it says "you owe" rather than "you owes".
+  String describeNet(String id, int cents, {required String currency}) {
+    if (cents == 0) return 'square';
+    final amount = formatCents(cents.abs(), currency);
+    return cents > 0
+        ? '${owesVerb(id)} $amount'
+        : '${getsVerb(id)} $amount';
   }
 
   /// Gives one person back the money they are holding for nothing.
@@ -428,10 +480,38 @@ class AppState extends ChangeNotifier {
     final g = groupById(groupId);
     if (g == null) return;
     final list = [...g.settlements];
+
+    // Taking back a payment has to take back whatever was handed back
+    // against it. Leaving the refund behind turned a payment and its
+    // reversal into a one-way transfer, and the screen then showed a debt
+    // between two people over a bill that no longer existed - with the note
+    // underneath still promising the debt was put back exactly as it was.
+    if (!settlement.refund) {
+      var toUndo = settlement.cents;
+      for (var i = list.length - 1; i >= 0 && toUndo > 0; i--) {
+        final s = list[i];
+        if (!s.refund) continue;
+        if (s.from != settlement.to || s.to != settlement.from) continue;
+        if (s.cents > toUndo) {
+          list[i] = Settlement(
+            from: s.from,
+            to: s.to,
+            cents: s.cents - toUndo,
+            refund: true,
+          );
+          toUndo = 0;
+        } else {
+          toUndo -= s.cents;
+          list.removeAt(i);
+        }
+      }
+    }
+
     for (var i = list.length - 1; i >= 0; i--) {
       if (list[i].from == settlement.from &&
           list[i].to == settlement.to &&
-          list[i].cents == settlement.cents) {
+          list[i].cents == settlement.cents &&
+          list[i].refund == settlement.refund) {
         list.removeAt(i);
         break;
       }
@@ -532,6 +612,25 @@ class AppState extends ChangeNotifier {
     final d = draft;
     if (d == null) return;
     _setDraftReceipt(d.receipt.copyWith(lines: lines));
+  }
+
+  /// Starts a bill with nothing in it, for when there is no receipt to
+  /// photograph - it was lost, never issued, or the meal was split from
+  /// memory. The check screen is the same one a scan lands on, so everything
+  /// after this point is identical.
+  void startManualBill() {
+    final d = draft;
+    if (d == null) return;
+    // A scan names the bill from what it read. Typing one in reads nothing,
+    // so without this the bill has no name at all and shows as a blank line
+    // in the group, in the summary and in the shared text.
+    draft = d.copyWith(
+      manual: true,
+      receipt: d.receipt.name.trim().isEmpty
+          ? d.receipt.copyWith(name: 'New bill')
+          : d.receipt,
+    );
+    _bump();
   }
 
   void applyParse(ParsedReceipt parsed, {String? billName}) {
@@ -707,8 +806,11 @@ class AppState extends ChangeNotifier {
     _save();
 
     // The receipts are gone; the photographs of them have to go too, or
-    // "clear all data" is not true.
+    // "clear all data" is not true. So do the copies kept of any store that
+    // could not be read - each one is a complete dump of everything this
+    // setting claims to have erased.
     _sweep();
+    _sweepQuarantined();
   }
 
   // ------------------------------------------------------- load / save JSON
@@ -768,10 +870,22 @@ class AppState extends ChangeNotifier {
       sha256.convert(utf8.encode('$salt:$pin')).toString();
 
   Future<void> load() async {
-    // A platform channel that never answers must not stop the app opening.
-    final raw = await _load()
-        .timeout(const Duration(seconds: 4), onTimeout: () => null)
-        .catchError((Object _) => null);
+    // A platform channel that never answers must not stop the app opening -
+    // but "the read failed" and "there is nothing saved yet" are different
+    // answers, and treating the first as the second wipes the user's data on
+    // the next save. Only a clean read of nothing is a first run.
+    String? raw;
+    try {
+      raw = await _load().timeout(const Duration(seconds: 4));
+    } catch (_) {
+      _seed();
+      storeUnavailable = true;
+      loaded = true;
+      _bump();
+      showToast('Could not open your saved data. Nothing will be overwritten.');
+      return;
+    }
+
     if (raw == null) {
       _seed();
     } else {

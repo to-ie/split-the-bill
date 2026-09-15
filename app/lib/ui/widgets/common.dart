@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 import '../../theme/tokens.dart';
@@ -678,6 +679,10 @@ class BillField extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final bool autofocus;
   final int? maxLength;
+
+  /// Restricts what may be typed or pasted. The keyboard type is only a hint
+  /// to the keyboard; a paste or a third-party keyboard ignores it.
+  final List<TextInputFormatter>? inputFormatters;
   final bool obscure;
 
   const BillField({
@@ -696,6 +701,7 @@ class BillField extends StatelessWidget {
     this.onSubmitted,
     this.autofocus = false,
     this.maxLength,
+    this.inputFormatters,
     this.obscure = false,
   });
 
@@ -716,6 +722,7 @@ class BillField extends StatelessWidget {
       autofocus: autofocus,
       obscureText: obscure,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       textAlign: textAlign,
       maxLength: maxLength,
       style: style,
@@ -807,57 +814,82 @@ Future<DeleteChoice> confirmDelete(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(title, style: ui(17, 900, color: c.ink)),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: c.bg,
-                borderRadius: BorderRadius.circular(R.tight),
-              ),
-              child: Text(
-                detail,
-                style: mono(13, 500, color: c.ink, height: 1.5),
-              ),
-            ),
-            if (creditWarning != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 13,
-                  vertical: 11,
-                ),
-                decoration: BoxDecoration(
-                  color: c.amberBg,
-                  borderRadius: BorderRadius.circular(R.small),
-                  border: Border.all(color: c.amberLine, width: 1.5),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            // The explanation scrolls; the buttons never do. A balance
+            // preview for five people at the largest system text is taller
+            // than a small phone, and it used to push Keep it and Delete it
+            // off the bottom of the screen with no way to reach them.
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Text(title, style: ui(17, 900, color: c.ink)),
+                    const SizedBox(height: 10),
                     Container(
-                      width: 17,
-                      height: 17,
-                      margin: const EdgeInsets.only(top: 1),
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        color: Brand.amberIcon,
-                        shape: BoxShape.circle,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
                       ),
-                      child: Text('!', style: ui(10.5, 900, color: Colors.white)),
-                    ),
-                    const SizedBox(width: 9),
-                    Expanded(
+                      decoration: BoxDecoration(
+                        color: c.bg,
+                        borderRadius: BorderRadius.circular(R.tight),
+                      ),
                       child: Text(
-                        creditWarning,
-                        style: ui(12.5, 700, color: c.ink, height: 1.45),
+                        detail,
+                        style: mono(13, 500, color: c.ink, height: 1.5),
                       ),
                     ),
+                    if (creditWarning != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 13,
+                          vertical: 11,
+                        ),
+                        decoration: BoxDecoration(
+                          color: c.amberBg,
+                          borderRadius: BorderRadius.circular(R.small),
+                          border: Border.all(color: c.amberLine, width: 1.5),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 17,
+                              height: 17,
+                              margin: const EdgeInsets.only(top: 1),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                color: Brand.amberIcon,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '!',
+                                style: ui(10.5, 900, color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(width: 9),
+                            Expanded(
+                              child: Text(
+                                creditWarning,
+                                style: ui(
+                                  12.5,
+                                  700,
+                                  color: c.ink,
+                                  height: 1.45,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-            ],
+            ),
             if (refundLabel != null) ...[
               const SizedBox(height: 12),
               Material(
@@ -972,9 +1004,9 @@ class Capped extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * fraction,
-        ),
-        child: child,
-      );
+    constraints: BoxConstraints(
+      maxWidth: MediaQuery.sizeOf(context).width * fraction,
+    ),
+    child: child,
+  );
 }

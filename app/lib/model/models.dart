@@ -33,14 +33,36 @@ class Settlement {
   final String to;
   final int cents;
 
-  const Settlement({required this.from, required this.to, required this.cents});
+  /// True when this is money being given back rather than a debt being paid:
+  /// a bill somebody had already settled was deleted or cut down, and what
+  /// they handed over no longer answered to anything.
+  ///
+  /// It is an ordinary entry in the ledger and counts exactly the same in the
+  /// sums. The flag is there so the screen can say which it is - after two or
+  /// three deletions a list of transfers running in both directions cannot be
+  /// read without it - and so that looking for a payment to reverse never
+  /// picks up a reversal.
+  final bool refund;
 
-  Map<String, dynamic> toJson() => {'from': from, 'to': to, 'cents': cents};
+  const Settlement({
+    required this.from,
+    required this.to,
+    required this.cents,
+    this.refund = false,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'from': from,
+    'to': to,
+    'cents': cents,
+    if (refund) 'refund': true,
+  };
 
   static Settlement fromJson(Map<String, dynamic> j) => Settlement(
     from: j['from'] as String,
     to: j['to'] as String,
     cents: (j['cents'] as num).toInt(),
+    refund: j['refund'] as bool? ?? false,
   );
 }
 

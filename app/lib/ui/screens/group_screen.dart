@@ -455,23 +455,57 @@ class _ReceiptRow extends StatelessWidget {
                       background: c.errorTint,
                       foreground: c.errorFg,
                       onTap: () async {
-                        // Payments already made are not unmade by deleting
-                        // the bill they were for, so anyone who has settled
-                        // against it would be left holding money for a debt
-                        // that no longer exists. Say so here, while there is
-                        // still something to point at, rather than letting a
-                        // balance move later for no visible reason.
+                        // Deleting a bill moves everybody's balance, and a
+                        // payment already made is not unmade by it. What the
+                        // user is really asking is "what will this do?", so
+                        // that is what the dialog answers - for everyone it
+                        // touches, not just whoever is left holding money.
+                        //
+                        // It used to name the people who had "settled against
+                        // this bill". Nobody settles against a bill: a payment
+                        // clears a net position across the group. The sentence
+                        // claimed a precision the ledger does not have, and
+                        // said nothing about the person who fronted the bill
+                        // losing the credit for it - usually the biggest move
+                        // on the screen.
+                        final shifts = app.shiftIfReceiptDeleted(
+                          groupId,
+                          receipt.id,
+                        );
+                        final currency = app.currencyFor(groupId);
+                        // No arrow glyph: the app's font has no U+2192 and
+                        // draws it as an empty box.
+                        //
+                        // Where somebody stood before is only worth saying
+                        // when it was not level. "(was square)" on every line
+                        // is four words of nothing, repeated.
+                        const shown = 5;
+                        final changes = shifts
+                            .take(shown)
+                            .map((s) {
+                              final now = app.describeNet(
+                                s.person,
+                                s.after,
+                                currency: currency,
+                              );
+                              final line = '${app.nameOf(s.person)} $now';
+                              if (s.before == 0) return line;
+                              return '$line, was '
+                                  '${app.describeNet(s.person, s.before, currency: currency)}';
+                            })
+                            .join('\n');
+                        // Never say "everyone" and then quietly stop at five.
+                        final extra = shifts.length - shown;
+                        final listed = extra > 0
+                            ? '$changes\nand $extra '
+                                  '${extra == 1 ? "other" : "others"}'
+                            : changes;
+
                         final credit = app.creditIfReceiptDeleted(
                           groupId,
                           receipt.id,
                         );
-                        final owed = credit.entries
-                            .map(
-                              (e) =>
-                                  '${app.nameOf(e.key)} '
-                                  '${app.moneyCents(e.value, groupId: groupId)}',
-                            )
-                            .join(', ');
+                        final owedBack = credit.values.fold(0, (a, b) => a + b);
 
                         final choice = await confirmDelete(
                           context,
@@ -480,14 +514,19 @@ class _ReceiptRow extends StatelessWidget {
                               '${receipt.name}\n'
                               '${app.moneyCents(receipt.grandCents, groupId: groupId)}',
                           confirmLabel: 'Delete it',
-                          creditWarning: credit.isEmpty
+                          // Which branch these figures describe matters:
+                          // handing the money back changes them again, so
+                          // saying "afterwards" flatly would be wrong for
+                          // whichever button the user actually presses.
+                          creditWarning: shifts.isEmpty
                               ? null
-                              : 'Already settled against this bill: $owed. '
-                                    'Deleting it leaves that in credit, and '
-                                    'owed back.',
+                              : '${credit.isEmpty ? "Afterwards" : "If you just delete it"}, '
+                                    'everyone stands like this:\n$listed',
                           refundLabel: credit.isEmpty
                               ? null
-                              : 'Delete and hand the money back',
+                              : 'Delete and hand back the '
+                                    '${app.moneyCents(owedBack, groupId: groupId)}'
+                                    ' they paid',
                         );
                         if (choice == DeleteChoice.cancel) return;
                         onClose();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../app.dart';
 import '../../model/models.dart';
@@ -346,6 +347,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             radius: R.tight,
                             fill: c.bg,
                             keyboardType: TextInputType.number,
+                            // The keypad that unlocks the app has only
+                            // digits on it. A PIN with a letter in it -
+                            // pasted, or typed on a keyboard that ignores
+                            // the numeric hint - could be set and then never
+                            // entered again, and with backups off there is
+                            // no way back into the receipts at all.
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 8,
@@ -362,7 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             vertical: 8,
                           ),
                           onPressed: () {
-                            if (_pin.text.length == 4) {
+                            if (RegExp(r'^\d{4}$').hasMatch(_pin.text)) {
                               app.setPin(_pin.text);
                               _pin.clear();
                               setState(() => _changingPin = false);

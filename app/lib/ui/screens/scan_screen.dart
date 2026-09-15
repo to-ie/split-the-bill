@@ -290,14 +290,32 @@ class _ScanScreenState extends State<ScanScreen>
               children: [
                 Expanded(
                   child: Align(
-                    child: _GalleryButton(
+                    child: _SideButton(
+                      icon: Icons.image_outlined,
+                      label: 'Gallery',
+                      semanticLabel: 'Choose a photo from the gallery',
                       enabled: !_scanning,
                       onTap: _fromGallery,
                     ),
                   ),
                 ),
                 _Shutter(busy: _scanning, onTap: _shoot),
-                const Expanded(child: SizedBox(height: 46)),
+                Expanded(
+                  child: Align(
+                    child: _SideButton(
+                      icon: Icons.edit_outlined,
+                      label: 'Type it in',
+                      semanticLabel: 'Enter the bill by hand, with no receipt',
+                      enabled: !_scanning,
+                      onTap: () {
+                        AppScope.read(context).startManualBill();
+                        Navigator.of(
+                          context,
+                        ).pushReplacement(fadeUpRoute(const CheckScreen()));
+                      },
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -325,17 +343,28 @@ String guessBillName(List<String> descriptions) {
   return 'New bill';
 }
 
-class _GalleryButton extends StatelessWidget {
+/// One of the two quiet buttons either side of the shutter.
+class _SideButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String semanticLabel;
   final VoidCallback onTap;
   final bool enabled;
-  const _GalleryButton({required this.onTap, required this.enabled});
+
+  const _SideButton({
+    required this.icon,
+    required this.label,
+    required this.semanticLabel,
+    required this.onTap,
+    required this.enabled,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = colors(context);
     return Semantics(
       button: true,
-      label: 'Choose a photo from the gallery',
+      label: semanticLabel,
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: Column(
@@ -349,11 +378,11 @@ class _GalleryButton extends StatelessWidget {
                 color: c.chip,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(Icons.image_outlined, size: 20, color: c.muted),
+              child: Icon(icon, size: 20, color: c.muted),
             ),
             const SizedBox(height: 6),
             Text(
-              'Gallery',
+              label,
               style: ui(12, 800, color: c.muted),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -170,9 +170,9 @@ class GroupSummaryScreen extends StatelessWidget {
               PersonCard(
                 name: app.nameOf(p.friendId),
                 color: Color(app.friendById(p.friendId).color),
-                amount: p.isSquare
-                    ? '—'
-                    : formatCents(p.netCents.abs(), currency),
+                // Zero, not a dash: it is a real figure and it says the
+                // same thing more plainly.
+                amount: formatCents(p.netCents.abs(), currency),
                 amountColor: p.getsBack ? c.okFg : c.ink,
                 status: p.isSquare
                     ? 'all square'
@@ -322,11 +322,16 @@ class _RecordedRow extends StatelessWidget {
     final app = AppScope.of(context);
     final c = colors(context);
 
+    final back = settlement.refund;
+
     return Semantics(
-      label:
-          '${app.nameOf(settlement.from)} paid '
-          '${app.nameOf(settlement.to)} '
-          '${formatCents(settlement.cents, currency)}',
+      label: back
+          ? '${app.nameOf(settlement.from)} handed '
+                '${formatCents(settlement.cents, currency)} back to '
+                '${app.nameOf(settlement.to)}'
+          : '${app.nameOf(settlement.from)} paid '
+                '${app.nameOf(settlement.to)} '
+                '${formatCents(settlement.cents, currency)}',
       child: CompactRow(
         child: Row(
           children: [
@@ -339,9 +344,14 @@ class _RecordedRow extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Icon(
-                Icons.check,
+                // Money going back is not a debt being cleared. After a
+                // couple of deletions a column of identical ticks pointing
+                // both ways tells the reader nothing at all.
+                back ? Icons.undo_rounded : Icons.check,
                 size: 13,
-                color: c.okFg.withValues(alpha: 0.7),
+                color: back
+                    ? Brand.amberIcon
+                    : c.okFg.withValues(alpha: 0.7),
               ),
             ),
             Avatar(
@@ -352,9 +362,19 @@ class _RecordedRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                formatCents(settlement.cents, currency),
-                style: mono(14, 700, color: c.muted),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    formatCents(settlement.cents, currency),
+                    style: mono(14, 700, color: c.muted),
+                  ),
+                  if (back)
+                    Text(
+                      'handed back',
+                      style: ui(10.5, 800, color: Brand.amberIcon),
+                    ),
+                ],
               ),
             ),
             const SizedBox(width: 8),

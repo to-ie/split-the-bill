@@ -95,6 +95,11 @@ void main() {
     'a small phone (320)': Size(320, 640),
     'a normal phone (390)': Size(390, 844),
     'a large phone (430)': Size(430, 932),
+    // Capped sizes a control against the screen, and the home row leaves a
+    // fixed 206 points for the name. Neither may bite where there is room.
+    'a small tablet (600)': Size(600, 960),
+    'a tablet (834)': Size(834, 1112),
+    'a foldable open (1100)': Size(1100, 1000),
   };
 
   sizes.forEach((label, size) {
@@ -133,6 +138,12 @@ void main() {
 
   // The worst case anyone can actually configure: the narrowest phone still
   // sold, with the largest text Android offers.
+  testWidgets('a tablet at large text', (tester) async {
+    await walk(tester, size: const Size(834, 1112), textScale: 1.6,
+        archive: true);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('no overflow at 320 wide and 1.6x text', (tester) async {
     await walk(tester,
         size: const Size(320, 640), textScale: 1.6, archive: true);

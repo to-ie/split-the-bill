@@ -161,6 +161,35 @@ void main() {
     expect(receiptPayments(g)['r1']!.progress, PaymentProgress.full);
   });
 
+  test('a bill paid in cash stays paid when a later bill is added', () {
+    // The badge used to be derived by differencing the payer's whole-group
+    // net before and after settling. Once a later bill pushed them into
+    // credit, that difference collapsed to zero and a bill somebody really
+    // had handed cash over for quietly stopped saying so.
+    var g = Group(
+      id: 'g',
+      name: 'Trip',
+      receipts: [dinner(id: 'r1', paidBy: 'you', amount: 20, party: const ['you', 'a'])],
+    );
+    g = g.copyWith(
+      settlements: const [Settlement(from: 'a', to: 'you', cents: 1000)],
+    );
+    expect(receiptPayments(g)['r1']!.progress, PaymentProgress.full);
+
+    // Ana now fronts the taxi. Her €10 for the dinner did not un-happen.
+    g = g.copyWith(
+      receipts: [
+        ...g.receipts,
+        dinner(id: 'r2', paidBy: 'a', amount: 20, party: const ['you', 'a']),
+      ],
+    );
+
+    final p = receiptPayments(g)['r1']!;
+    expect(p.cashCents, 1000, reason: 'Ana really did hand over €10');
+    expect(p.progress, PaymentProgress.full,
+        reason: 'a later bill must not un-pay an earlier one');
+  });
+
   test('clearing every transfer marks every bill paid', () {
     var g = Group(id: 'g', name: 'Trip', receipts: [
       dinner(id: 'r1', paidBy: 'you', amount: 30, party: party),

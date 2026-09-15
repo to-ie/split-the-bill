@@ -6,15 +6,38 @@
 /// gives three shares that do not add back up to 10.00.
 library;
 
-int toCents(double amount) => (amount * 100).round();
+/// The most any single line may come to.
+///
+/// Far beyond any bill anybody will ever split, and small enough that a group
+/// stuffed with them still cannot overflow integer cents when they are added
+/// up and divided.
+const double maxAmount = 9999999.99;
+
+/// Cents, with the two ways a double can refuse to be money headed off.
+///
+/// `double.tryParse` accepts "Infinity" and "NaN", and `(x * 100).round()`
+/// throws on both - so pasting either into an amount field took the screen
+/// down while it was being laid out. A misread receipt could do the same with
+/// a long enough run of digits. Neither is a number anybody meant, so both
+/// become something harmless rather than an exception.
+int toCents(double amount) {
+  if (amount.isNaN) return 0;
+  return (amount.clamp(-maxAmount, maxAmount) * 100).round();
+}
 
 double fromCents(int cents) => cents / 100.0;
 
 /// Parse a user-typed amount. Comma or dot decimal separator; anything
 /// unparseable is zero, matching the prototype.
+///
+/// The keypad asks for digits, but a paste, a hardware keyboard or a
+/// third-party keyboard can put anything in the field, so what comes out here
+/// is always a real number within a sane range.
 double parseTyped(String raw) {
   final s = raw.trim().replaceAll(',', '.').replaceAll('−', '-');
-  return double.tryParse(s) ?? 0;
+  final value = double.tryParse(s);
+  if (value == null || value.isNaN) return 0;
+  return value.clamp(-maxAmount, maxAmount);
 }
 
 /// Split [cents] into [n] parts that sum to exactly [cents].

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show FileSystemException;
 
 import 'package:bill/app.dart';
 import 'package:bill/state/app_state.dart';
@@ -156,6 +157,97 @@ void main() {
               'would not be clearing all data');
       expect(app.groups, isEmpty);
       expect(app.friends.length, 1);
+    });
+  });
+
+  group('clearing all data leaves nothing behind', () {
+    test('the copies kept of an unreadable store are deleted too', () async {
+      var photos = false;
+      var quarantined = false;
+
+      final app = AppState(
+        // A store the app cannot parse, so a copy of it gets put aside.
+        loader: () async => '{ this is not json' as String?,
+        saver: (_) async {},
+        quarantine: (_) async {},
+        sweepQuarantinedAt: () async => quarantined = true,
+        sweepPhotos: () async => photos = true,
+        discardPhotoAt: (_) async {},
+      );
+      await app.load();
+      expect(app.storeWasUnreadable, isTrue);
+
+      app.clearAllData();
+
+      expect(photos, isTrue);
+      expect(
+        quarantined,
+        isTrue,
+        reason: 'the set-aside copy holds every receipt, every name and the '
+            'PIN hash, so leaving it behind makes "clear all data" a lie',
+      );
+    });
+  });
+
+  group('a read that fails never destroys what is there', () {
+    test('a throwing read does not seed-and-save over the top', () async {
+      final written = <String>[];
+      final app = AppState(
+        loader: () async => throw const FileSystemException('disk asleep'),
+        saver: (j) async => written.add(j),
+        quarantine: (_) async {},
+        sweepQuarantinedAt: () async {},
+        sweepPhotos: () async {},
+        discardPhotoAt: (_) async {},
+      );
+      await app.load();
+
+      expect(app.storeUnavailable, isTrue);
+
+      // The app is usable, but every write is refused.
+      app.setMyName('Theo');
+      app.createGroup('Kithnos');
+      await app.flushWrites();
+      expect(
+        written,
+        isEmpty,
+        reason: 'writing here would overwrite data we simply could not read',
+      );
+    });
+
+    test('a read that hangs is treated the same way', () async {
+      final written = <String>[];
+      final app = AppState(
+        loader: () => Future<String?>.delayed(const Duration(seconds: 30)),
+        saver: (j) async => written.add(j),
+        quarantine: (_) async {},
+        sweepQuarantinedAt: () async {},
+        sweepPhotos: () async {},
+        discardPhotoAt: (_) async {},
+      );
+      await app.load();
+      expect(app.storeUnavailable, isTrue);
+      app.createGroup('Kithnos');
+      await app.flushWrites();
+      expect(written, isEmpty);
+    });
+
+    test('a genuinely empty first run still saves normally', () async {
+      final written = <String>[];
+      final app = AppState(
+        loader: () async => null,
+        saver: (j) async => written.add(j),
+        quarantine: (_) async {},
+        sweepQuarantinedAt: () async {},
+        sweepPhotos: () async {},
+        discardPhotoAt: (_) async {},
+      );
+      await app.load();
+
+      expect(app.storeUnavailable, isFalse);
+      app.createGroup('Kithnos');
+      await app.flushWrites();
+      expect(written, isNotEmpty);
     });
   });
 

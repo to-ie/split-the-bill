@@ -416,3 +416,123 @@ ledger stays append-only, which is the only reason its figures can be trusted.
 
 Where it arises some other way — editing a bill down rather than deleting it —
 the person's card on the group summary says so, and offers the same way out.
+
+## A bill with no receipt
+
+Not every bill comes with a receipt. It was lost, it was never issued, or the
+evening is being reconstructed a day later. **Type it in**, beside the shutter,
+starts an empty bill and goes straight to the same check screen a scan lands
+on, so everything after that point is identical. The draft remembers that it
+was typed rather than photographed, because "nothing was read from this photo"
+is nonsense about a bill that was never photographed.
+
+## Deleting a paid bill, properly this time
+
+Two things were wrong, and only one of them was arithmetic.
+
+**The warning described the wrong thing.** It named the people who had
+"settled against this bill". Nobody ever settles against a bill: a payment
+clears a net position across the whole group. The sentence claimed a precision
+the ledger does not have, and it described only the people left holding money
+— saying nothing about the person who fronted the bill losing the credit for
+it, which is usually the biggest movement on the screen. In a three-bill group
+where everybody was square, deleting one bill moved the payer from square to
+owing twenty and the warning did not mention them at all.
+
+So the dialog now answers the question actually being asked — *what will this
+do?* — for everyone it touches, worst movement first, and says which of the
+two buttons the figures describe, because handing the money back changes them
+again.
+
+**And deleting a second bill reversed the same payment twice.** Each refund
+pass walked a person's payments from the newest and took what it needed, with
+no memory of what an earlier pass had already handed back. After two
+deletions the newest payment had been reversed twice over: money went back
+from whoever happened to be newest rather than from whoever was actually
+holding it, and somebody ended up having returned more than they were ever
+given. A pass now subtracts what has already come back from each person
+before deciding how much of a payment is still reversible.
+
+Two further corrections fell out of testing that:
+
+- A refund is now marked as one. It counts identically in every sum, but the
+  screen can say *handed back* instead of showing a column of identical ticks
+  pointing both ways, and a reversal can never itself be reversed.
+- Overpayment was measured as everything a person had paid out less everything
+  that came in. That counted money they had *returned* as money they had
+  *paid*, so somebody who handed a refund back looked as though they had
+  overpaid — and the app offered to refund them money they had never paid.
+  What a person is out of pocket is what they handed over to clear a debt,
+  less everything that has come back to them, whichever direction it came
+  from.
+
+Two fuzzers hold this down: two hundred groups deleted bill by bill, checking
+at every step that the figures promised by the warning are the figures that
+result, that nobody has handed back more than they were given, that the nets
+still sum to zero, and that a group with every bill deleted ends square.
+
+## What the full check turned up
+
+An eighty-five agent audit across eight lenses, plus an invariant suite run
+against deliberately hostile data. Between them they found eleven real
+defects. The ones that mattered:
+
+**The PIN did not lock anything.** The lock was expressed as `MaterialApp`'s
+`home:`, which is only the bottom of the navigator stack. Anything pushed on
+top of it — a group, a receipt, the summary with every figure in it — stayed
+on screen when the app re-locked, so the PIN blocked the app only if you
+happened to be on the home screen when you put the phone down. It is now an
+overlay above every route, with the screens beneath it offstage: not painted,
+not hit-tested, not read out. Unlocking returns you to where you were.
+
+**A failed read looked exactly like a first run.** The store loader swallowed
+every error and returned null, which the app took to mean "nothing saved yet".
+It seeded itself empty and the next save wrote that emptiness over the top.
+Errors now propagate, a read that fails or hangs sets the store unavailable,
+and while it is unavailable nothing is written at all. Saving also goes
+through a temporary file and a rename, so a process killed mid-write leaves
+the previous store intact rather than a truncated one.
+
+**Clear all data did not.** The copies kept of stores that could not be parsed
+— each a complete dump of the receipts, the names and the PIN hash — were left
+in the documents directory, and accumulated one per failed parse.
+
+**Amounts of a thousand or more were not money.** The pattern deciding whether
+a token is a price required a thousands separator, so "1200.00" as most tills
+print it was read as text. The villa, the flight and the bill's own total all
+vanished, which is the worst possible line to lose.
+
+**A supermarket weighed row lost its price.** Any row containing "@" was
+folded into the line above. That is right for "0.482 kg @ 4.98/kg" printed
+under an item, and wrong for "BANANAS 1.2kg @ 1.50" with what it came to on
+the right — which threw the item away and gave its money to whatever was
+printed before it, often the shop's own name.
+
+**Pasting "Infinity" into an amount crashed the screen.** `double.tryParse`
+accepts it, and rounding it threw during layout. Amounts are now always finite
+and within a sane range, from the keypad and from a misread photo alike.
+
+**A bill paid in cash stopped saying so** as soon as the same person fronted a
+later bill — a fault in the badge work earlier in the day. It inferred what
+somebody had handed over by differencing their whole-group net; that reads the
+right number only while they are still in debt. What a person paid is a fact
+about the payments, not about where the group stands afterwards.
+
+**The refund button moved more money than it named**, sweeping up overpayments
+the user had already been offered and declined. **It also asked the wrong
+person.** Reversing the most recent payment is not the same as reversing the
+one that is now unowed: pay Ben for the taxi on Monday and Cara for dinner on
+Tuesday, delete the taxi, and Cara was told to hand money back while Ben kept
+it. The ledger already knows who is holding money they are not owed — they
+have a positive net — so that is who is asked now.
+
+**Undoing a payment that had been refunded** left the refund behind as a
+one-way transfer, inventing a debt between two people over a bill that no
+longer existed. Undoing a payment now takes its refund with it.
+
+Two more that were only visible on a device: the lock screen's keypad was
+clipped off the bottom in landscape, so a locked app could not be opened
+without turning the phone; and the "adds up" tick was U+2713, which neither
+bundled font contains, so it drew as an empty box. There is now a test that
+reads the fonts' character tables and fails on any character the app draws
+that they do not contain.

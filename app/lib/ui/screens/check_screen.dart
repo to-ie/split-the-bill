@@ -180,7 +180,16 @@ class _CheckScreenState extends State<CheckScreen> with WidgetsBindingObserver {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      'Nothing was read from this photo.\nAdd the lines by hand.',
+                      // A bill being typed in was never read from anything,
+                      // and neither was one whose rows have all been deleted,
+                      // so saying the reading failed would be nonsense in
+                      // both cases.
+                      (app.draft?.manual ?? false)
+                          ? 'An empty bill.\nAdd each item and what it cost.'
+                          : (app.draft?.isNew ?? false)
+                          ? 'Nothing was read from this photo.\n'
+                                'Add the lines by hand.'
+                          : 'Nothing on this bill.\nAdd the lines by hand.',
                       textAlign: TextAlign.center,
                       style: ui(12.5, 700, color: c.muted, height: 1.5),
                     ),
@@ -253,7 +262,11 @@ class _BalanceBanner extends StatelessWidget {
             height: 20,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: fg, shape: BoxShape.circle),
-            child: Text(balanced ? '✓' : '!', style: ui(12, 900, color: bg)),
+            // An icon, not a "✓": neither bundled font has U+2713, so the
+            // banner drew an empty box on the device whenever it balanced.
+            child: balanced
+                ? Icon(Icons.check_rounded, size: 13, color: bg)
+                : Text('!', style: ui(12, 900, color: bg)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -419,9 +432,15 @@ class _LineRow extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 line.amount == null
-                    ? '—'
+                    ? '?'
                     : formatMoney(line.effective, currency),
-                style: mono(13, 700, color: c.ink, decoration: deco),
+                style: mono(
+                  13,
+                  700,
+                  // A row with no price yet is a question, not a value.
+                  color: line.amount == null ? c.muted : c.ink,
+                  decoration: deco,
+                ),
               ),
             ],
           ),
