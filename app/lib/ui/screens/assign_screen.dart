@@ -128,6 +128,7 @@ class _AssignRow extends StatelessWidget {
                         size: 36,
                         ring: live.contains(id) ? Brand.green : null,
                         dimmed: !live.contains(id),
+                        revealName: true,
                         onTap: () => app.toggleAssign(line.id, id),
                       ),
                   ],

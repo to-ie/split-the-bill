@@ -566,10 +566,20 @@ class Avatar extends StatelessWidget {
       ),
     );
 
-    if (onTap == null && revealName) {
+    if (revealName) {
+      // The bubble and the action are one tap, not two competing ones.
+      //
+      // A row of bare initials is unreadable the moment two people share a
+      // first letter - two identical circles, and the only way to tell them
+      // apart was to remember which order they went in. So the circle says
+      // who it is when it is tapped, and where the tap also does something -
+      // claiming a line, naming who paid - it still does it. Nesting a
+      // second gesture detector inside the tooltip's own would not work:
+      // the inner one wins the arena and the bubble never appears.
       return Tooltip(
         message: name,
         triggerMode: TooltipTriggerMode.tap,
+        onTriggered: onTap,
         preferBelow: false,
         showDuration: const Duration(seconds: 2),
         decoration: BoxDecoration(
@@ -578,7 +588,14 @@ class Avatar extends StatelessWidget {
         ),
         textStyle: ui(12, 800, color: Colors.white),
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-        child: Semantics(label: name, child: circle),
+        child: onTap == null
+            ? Semantics(label: name, child: circle)
+            : Semantics(
+                button: true,
+                selected: ring != null,
+                label: name,
+                child: circle,
+              ),
       );
     }
 

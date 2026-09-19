@@ -286,6 +286,17 @@ void main() {
     await shot(tester, '12b_settings_foot');
   });
 
+  testWidgets('12c settings, a friend being renamed', (tester) async {
+    await boot(tester);
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pumpAndSettle();
+    final amara = find.text('Amara');
+    await tester.ensureVisible(amara);
+    await tester.pumpAndSettle();
+    await tester.tap(amara);
+    await shot(tester, '12c_settings_renaming');
+  });
+
   testWidgets('09c a brand new group', (tester) async {
     final state = await boot(tester, empty: true);
     state.createGroup('Kithnos');

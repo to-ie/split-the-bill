@@ -536,3 +536,57 @@ without turning the phone; and the "adds up" tick was U+2713, which neither
 bundled font contains, so it drew as an empty box. There is now a test that
 reads the fonts' character tables and fails on any character the app draws
 that they do not contain.
+
+## A friend's name could be typed but never corrected
+
+Neither spec offers any way to change a person's name once it is in. The
+handoff has the group name renamed inline (section 11) and says nothing about
+friends, and the brief treats them as a fixed list.
+
+That is the wrong thing to leave out. A friend is added at the table, from
+memory, on a phone keyboard, in a hurry, and the name that goes in is the one
+thing most likely to be wrong — a misheard spelling, a missing surname when a
+second Tom turns up, a nickname that made sense on the night. The only remedy
+was to remove the person and add them again, which the app refuses the moment
+they are on a bill, so in practice a typo was permanent.
+
+Tapping a name in **Settings, Friends** now opens it for editing, beside a
+pencil that says it can be. Renaming is live, like the group name and your
+own above it, so there is nothing to commit and leaving the screen half way
+through cannot lose it; the tick only puts the field away.
+
+A rename reaches everything at once, including the bills already filed.
+Nothing anywhere stores a person's name except the friend themselves —
+parties, assignments, payments and settlements all hold ids, and every screen
+renders through `nameOf` — so this needs no migration and cannot leave the
+old spelling on the old receipts and the new one on everything after.
+
+Two refusals. An **empty name** is not stored: it is a field caught mid-edit
+rather than anybody's intention, and a person with no name cannot be read —
+the avatar falls back to "?" and every line that names them loses its subject.
+And **"you" is not renamed here**, because that name lives in Settings as
+`myName`, is what `nameOf` hands back, and has its own field at the top of the
+same screen; writing it onto the friend as well would leave two copies of one
+name, free to disagree.
+
+`lib/state/app_state.dart`, `lib/ui/screens/settings_screen.dart`,
+`test/friend_rename_test.dart`
+
+## Two people, one initial, one circle
+
+The coloured circle carries a single letter, and on the screens where it
+appears without its name — claiming a line on **Who had what**, naming who
+paid on **Summary** — Tom and Tara are the same circle in an order nobody
+memorised. The group screen already answered this with a tap-for-a-name
+bubble; it just was not available where the circle is also a control, because
+`Avatar` only offered `revealName` when there was no `onTap`.
+
+Both now work off the one tap: the bubble appears *and* the line is claimed.
+Nesting a second gesture detector inside the tooltip's own would not have
+done it — the inner one wins the arena and the bubble never shows — so the
+action hangs off the tooltip's `onTriggered` instead.
+
+Left alone: the friend chips on **Who's splitting?**, where the whole chip is
+the tap target and the name is spelled out beside the circle anyway.
+
+`lib/ui/widgets/common.dart`, `test/avatar_bubble_test.dart`

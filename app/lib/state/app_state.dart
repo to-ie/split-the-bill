@@ -292,6 +292,38 @@ class AppState extends ChangeNotifier {
     return friend;
   }
 
+  /// Renames a friend, everywhere at once.
+  ///
+  /// Nothing anywhere stores a person's name except the friend themselves:
+  /// parties, assignments, payments and settlements all hold ids, and every
+  /// screen renders through [nameOf]. So correcting a spelling corrects the
+  /// bills already filed under it, rather than leaving the old name on the
+  /// old receipts and the new one on everything after.
+  ///
+  /// An empty name is refused rather than stored. It is a field caught
+  /// mid-edit rather than anybody's intention, and a person with no name
+  /// cannot be read: the avatar falls back to "?" and every line that names
+  /// them - "Amara owes you €12.50" - loses its subject.
+  ///
+  /// "You" is renamed through [setMyName]. That name lives in settings and is
+  /// what [nameOf] hands back for them, so writing it onto the friend as well
+  /// would leave two copies of one name, free to disagree.
+  void renameFriend(String id, String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return;
+
+    if (id == 'you') {
+      setMyName(trimmed);
+      return;
+    }
+
+    if (!friends.any((f) => f.id == id && f.name != trimmed)) return;
+    friends = [
+      for (final f in friends) f.id == id ? f.copyWith(name: trimmed) : f,
+    ];
+    _save();
+  }
+
   /// Refuses while any bill still refers to them.
   ///
   /// LOGIC.md section 4 only mentions assigned items, but paying for a bill

@@ -2,7 +2,7 @@
 
 Privacy-first bill splitting for Android. The app lives in [app/](app/).
 
-**Landing page:** https://to-ie.github.io/split-the-bill/
+**Landing page:** https://split.t-o.ie/
 
 ## Publishing the landing page
 
@@ -13,7 +13,13 @@ publishing `dist/` wholesale, so the Flutter web build in `dist/web/` and any
 APKs sitting in `dist/` cannot end up on the site. The job fails if either
 appears.
 
-Once, in the repository settings: **Settings, Pages, Source: GitHub Actions**.
+Once, in the repository settings: **Settings, Pages, Source: GitHub Actions**,
+and **Custom domain: split.t-o.ie**. The workflow also writes a `CNAME` file
+into the artifact, because a domain set only in the settings does not reliably
+survive an Actions deployment, and losing it drops the site back to the
+github.io address without saying so.
+
+`split.t-o.ie` is a CNAME to `to-ie.github.io` in the t-o.ie zone.
 
 ## Releasing a build
 

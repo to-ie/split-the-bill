@@ -42,6 +42,11 @@ jobs:
           cp -r dist/site _site/site
           # No Jekyll: this is plain HTML and does not want processing.
           touch _site/.nojekyll
+          # The custom domain. Pages deployed from Actions are supposed to
+          # take this from the repository settings, but it does not always
+          # survive a deploy, and losing it drops the site back to the
+          # github.io address with no warning.
+          echo "split.t-o.ie" > _site/CNAME
 
       - name: Check nothing unwanted came with it
         run: |
@@ -50,6 +55,7 @@ jobs:
           ! ls _site/*.apk >/dev/null 2>&1 || { echo "APKs belong in a release"; exit 1; }
           test -f _site/index.html
           test -f _site/site/logo.png
+          grep -qx 'split.t-o.ie' _site/CNAME
           echo "Publishing:"
           find _site -type f | sort
 

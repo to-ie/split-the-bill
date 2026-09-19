@@ -66,6 +66,7 @@ class SummaryScreen extends StatelessWidget {
                           size: 34,
                           ring: receipt.paidBy == id ? Brand.green : null,
                           dimmed: receipt.paidBy != id,
+                          revealName: true,
                           onTap: () => app.setPaidBy(id),
                         ),
                     ],
@@ -283,7 +284,7 @@ class PersonCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Avatar(name: name, color: color, size: 34),
+              Avatar(name: name, color: color, size: 34, revealName: true),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(

@@ -21,15 +21,20 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _myName = TextEditingController();
   final _newFriend = TextEditingController();
+  final _friendName = TextEditingController();
   final _pin = TextEditingController();
   bool _addCurrency = false;
   bool _changingPin = false;
   bool _seeded = false;
 
+  /// The friend whose name is open for editing, if any.
+  String? _renaming;
+
   @override
   void dispose() {
     _myName.dispose();
     _newFriend.dispose();
+    _friendName.dispose();
     _pin.dispose();
     super.dispose();
   }
@@ -39,6 +44,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     app.addFriend(_newFriend.text);
     _newFriend.clear();
   }
+
+  /// Renaming saves as it is typed, the same as the group name and your own
+  /// above. There is nothing to commit, so closing the screen half way
+  /// through cannot lose the edit and the tick only puts the field away.
+  ///
+  /// The cursor goes to the end rather than selecting the whole name. Most
+  /// renames here are a misheard spelling being corrected, and select-all
+  /// turns a single keystroke into the loss of the name that was there.
+  void _startRenaming(Friend f) {
+    _friendName.text = f.name;
+    _friendName.selection = TextSelection.collapsed(
+      offset: _friendName.text.length,
+    );
+    setState(() => _renaming = f.id);
+  }
+
+  void _stopRenaming() => setState(() => _renaming = null);
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         const SizedBox(width: 8),
-                        _RemoveButton(
+                        _RoundButton(
                           semanticLabel: 'Remove $sym',
                           onTap: () => app.removeCurrency(sym),
                         ),
@@ -223,28 +245,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           name: app.nameOf(f.id),
                           color: Color(f.color),
                           size: 30,
+                          revealName: true,
                         ),
                         const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            app.nameOf(f.id),
-                            style: ui(14, 800, color: c.ink),
-                          ),
-                        ),
-                        if (f.isYou)
-                          Capped(
-                            child: Text(
-                              'that is you',
-                              style: ui(12, 600, color: c.muted),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                        if (_renaming == f.id) ...[
+                          Expanded(
+                            child: BillField(
+                              controller: _friendName,
+                              hint: 'Name',
+                              autofocus: true,
+                              fill: c.bg,
+                              fontSize: 13.5,
+                              weight: 700,
+                              radius: R.tight,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              onChanged: (v) => app.renameFriend(f.id, v),
+                              onSubmitted: (_) => _stopRenaming(),
                             ),
-                          )
-                        else
-                          _RemoveButton(
-                            semanticLabel: 'Remove ${f.name}',
-                            onTap: () => app.removeFriend(f.id),
                           ),
+                          const SizedBox(width: 8),
+                          _RoundButton(
+                            icon: Icons.check,
+                            semanticLabel: 'Done renaming',
+                            onTap: _stopRenaming,
+                          ),
+                        ] else ...[
+                          Expanded(
+                            // "You" is named by the field at the top of this
+                            // screen, so it is not editable twice.
+                            child: f.isYou
+                                ? Text(
+                                    app.nameOf(f.id),
+                                    style: ui(14, 800, color: c.ink),
+                                  )
+                                : _RenameTarget(
+                                    name: app.nameOf(f.id),
+                                    onTap: () => _startRenaming(f),
+                                  ),
+                          ),
+                          if (f.isYou)
+                            Capped(
+                              child: Text(
+                                'that is you',
+                                style: ui(12, 600, color: c.muted),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          else
+                            _RoundButton(
+                              semanticLabel: 'Remove ${f.name}',
+                              onTap: () => app.removeFriend(f.id),
+                            ),
+                        ],
                       ],
                     ),
                   ),
@@ -287,6 +343,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          const Note(
+            'Tap a name to correct it. The new spelling appears on every '
+            'bill they are already on.',
           ),
           const SizedBox(height: 18),
 
@@ -484,11 +545,18 @@ class _RowPad extends StatelessWidget {
   }
 }
 
-/// The round grey ✕ used to remove a currency or a friend.
-class _RemoveButton extends StatelessWidget {
+/// The round grey button at the end of a row: ✕ to remove a currency or a
+/// friend, ✓ to finish renaming one.
+class _RoundButton extends StatelessWidget {
   final VoidCallback onTap;
   final String semanticLabel;
-  const _RemoveButton({required this.onTap, required this.semanticLabel});
+  final IconData icon;
+
+  const _RoundButton({
+    required this.onTap,
+    required this.semanticLabel,
+    this.icon = Icons.close,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -504,7 +572,50 @@ class _RemoveButton extends StatelessWidget {
           height: 26,
           alignment: Alignment.center,
           decoration: BoxDecoration(color: c.chip, shape: BoxShape.circle),
-          child: Icon(Icons.close, size: 14, color: c.muted),
+          child: Icon(icon, size: 14, color: c.muted),
+        ),
+      ),
+    );
+  }
+}
+
+/// A friend's name, with the pencil that says it can be changed.
+///
+/// The pencil is not decoration: a name that is only a name looks like a
+/// label, and nobody taps a label. It sits next to the text rather than at
+/// the end of the row so that it cannot be mistaken for the ✕ beside it.
+class _RenameTarget extends StatelessWidget {
+  final String name;
+  final VoidCallback onTap;
+
+  const _RenameTarget({required this.name, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = colors(context);
+    return Semantics(
+      button: true,
+      // One node saying "Rename Tomas", rather than an annotation that merges
+      // with the name underneath it and has a screen reader read the name
+      // out twice.
+      container: true,
+      excludeSemantics: true,
+      label: 'Rename $name',
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Flexible(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: ui(14, 800, color: c.ink),
+              ),
+            ),
+            const SizedBox(width: 7),
+            Icon(Icons.edit_outlined, size: 13, color: c.muted),
+          ],
         ),
       ),
     );
