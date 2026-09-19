@@ -5,19 +5,43 @@ class Friend {
   final String name;
   final int color;
 
-  const Friend({required this.id, required this.name, required this.color});
+  /// Deleted by the user, but still named by bills in an archived group.
+  ///
+  /// Somebody can only be deleted once every bill that names them is in the
+  /// archive, and the archive is kept to be read. Dropping the record would
+  /// turn every figure in it into a "?" - which is the one thing an archive
+  /// must not do. So they are kept, out of every list and picker, purely so
+  /// that the closed books still say who was at the table.
+  final bool removed;
+
+  const Friend({
+    required this.id,
+    required this.name,
+    required this.color,
+    this.removed = false,
+  });
 
   bool get isYou => id == 'you';
 
-  Friend copyWith({String? name}) =>
-      Friend(id: id, name: name ?? this.name, color: color);
+  Friend copyWith({String? name, bool? removed}) => Friend(
+    id: id,
+    name: name ?? this.name,
+    color: color,
+    removed: removed ?? this.removed,
+  );
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'color': color};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'color': color,
+    if (removed) 'removed': true,
+  };
 
   static Friend fromJson(Map<String, dynamic> j) => Friend(
     id: j['id'] as String,
     name: j['name'] as String,
     color: (j['color'] as num).toInt(),
+    removed: j['removed'] as bool? ?? false,
   );
 }
 

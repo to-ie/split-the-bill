@@ -590,3 +590,26 @@ Left alone: the friend chips on **Who's splitting?**, where the whole chip is
 the tap target and the name is spelled out beside the circle anyway.
 
 `lib/ui/widgets/common.dart`, `test/avatar_bubble_test.dart`
+
+## A friend the archive still needs
+
+Removal was refused while *any* bill named the person. That is right for a
+group still in use — pulling somebody out from under a live bill leaves money
+credited to nobody — but wrong for an archived one. Archiving is how a trip is
+declared over: settled, kept to be looked at, never changing again. Somebody
+who appears only in closed books is not somebody you split bills with, and the
+old rule meant one holiday kept a stranger in the picker for good.
+
+Archived groups no longer block it. A live group still does, and so does a
+draft, which is live work whatever state its group is in. When two groups both
+name the person, the refusal names the live one — the archived one is not the
+reason.
+
+The record is kept rather than dropped, flagged `Friend.removed`, because the
+archive is read and an archive full of "?" is worse than none. A tombstone is
+in no list, no picker and no Settings row; it exists so `nameOf` still answers.
+Taking the group back out of the archive brings the person back with it, or a
+live bill would be crediting somebody who no longer exists.
+
+`lib/model/models.dart`, `lib/state/app_state.dart`,
+`test/friend_removal_test.dart`

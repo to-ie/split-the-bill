@@ -65,7 +65,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
             crossAxisSpacing: R.gap,
             childAspectRatio: 2.55,
             children: [
-              for (final f in app.friends)
+              for (final f in app.visibleFriends)
                 _FriendChip(
                   name: app.nameOf(f.id),
                   color: Color(f.color),

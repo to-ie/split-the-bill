@@ -131,6 +131,13 @@ class AppState extends ChangeNotifier {
 
   bool isYou(String id) => id == 'you';
 
+  /// Everyone who can be picked, added to a bill or listed in Settings.
+  ///
+  /// People deleted while an archived bill still named them are kept in
+  /// [friends] so that the archive reads correctly, and appear nowhere else.
+  List<Friend> get visibleFriends =>
+      friends.where((f) => !f.removed).toList();
+
   /// Verb agreement: "You owe" but "Tom owes".
   String owesVerb(String id) => isYou(id) ? 'owe' : 'owes';
   String getsVerb(String id) => isYou(id) ? 'get back' : 'gets back';
@@ -324,12 +331,24 @@ class AppState extends ChangeNotifier {
     _save();
   }
 
-  /// Refuses while any bill still refers to them.
+  /// Refuses while a bill that is still live refers to them.
   ///
   /// LOGIC.md section 4 only mentions assigned items, but paying for a bill
   /// and being on one are just as much a reference: deleting the person who
   /// paid left the receipt reading "Paid by ?" and the group crediting
   /// somebody who no longer existed.
+  ///
+  /// An archived group does not block it. Archiving is how a trip is
+  /// declared over: the bills are settled, the figures are kept to be looked
+  /// at and nothing about them is going to change again. Somebody who only
+  /// appears in closed books is no longer somebody you split bills with, and
+  /// refusing to take them off the list meant that one holiday three years
+  /// ago kept a stranger in the picker for ever. A live group is the
+  /// opposite - its bills are still being edited and settled, and pulling a
+  /// person out from under them would leave money credited to nobody.
+  ///
+  /// Their record survives, flagged [Friend.removed], so the archive still
+  /// names them. See [visibleFriends].
   void removeFriend(String id) {
     if (id == 'you') return;
 
@@ -343,22 +362,37 @@ class AppState extends ChangeNotifier {
       return null;
     }
 
-    for (final g in groups) {
+    String? reasonIn(Group g) {
       for (final s in g.settlements) {
         if (s.from == id || s.to == id) {
-          showToast("Can't remove $name. They have settled up in ${g.name}.");
-          return;
+          return 'They have settled up in ${g.name}.';
         }
       }
       for (final r in g.receipts) {
         final reason = blockedBy(r);
-        if (reason != null) {
-          showToast("Can't remove $name. $reason");
-          return;
-        }
+        if (reason != null) return reason;
+      }
+      return null;
+    }
+
+    String? live;
+    var inArchive = false;
+    for (final g in groups) {
+      final reason = reasonIn(g);
+      if (reason == null) continue;
+      if (g.archived) {
+        inArchive = true;
+      } else {
+        live ??= reason;
       }
     }
 
+    if (live != null) {
+      showToast("Can't remove $name. $live");
+      return;
+    }
+
+    // A draft is live work by definition, archived or not.
     final d = draft;
     if (d != null) {
       final reason = blockedBy(d.receipt);
@@ -367,7 +401,14 @@ class AppState extends ChangeNotifier {
         return;
       }
     }
-    friends = friends.where((f) => f.id != id).toList();
+
+    friends = inArchive
+        ? [
+            for (final f in friends)
+              f.id == id ? f.copyWith(removed: true) : f,
+          ]
+        : friends.where((f) => f.id != id).toList();
+
     if (d != null && d.receipt.party.contains(id)) {
       _setDraftReceipt(
         d.receipt.copyWith(
@@ -399,8 +440,43 @@ class AppState extends ChangeNotifier {
   void renameGroup(String id, String name) =>
       _updateGroup(id, (g) => g.copyWith(name: name));
 
-  void setArchived(String id, bool archived) =>
-      _updateGroup(id, (g) => g.copyWith(archived: archived));
+  void setArchived(String id, bool archived) {
+    _updateGroup(id, (g) => g.copyWith(archived: archived));
+    if (!archived) _reviveMembersOf(id);
+  }
+
+  /// Taking a group back out of the archive brings back anybody who was
+  /// deleted while it was in there.
+  ///
+  /// They were only removable because every bill naming them was closed. The
+  /// moment those bills are live again the person has to exist again, or the
+  /// group credits a "?" and nobody can settle with them.
+  void _reviveMembersOf(String groupId) {
+    final g = groupById(groupId);
+    if (g == null) return;
+
+    final named = <String>{};
+    for (final r in g.receipts) {
+      named
+        ..addAll(r.party)
+        ..add(r.paidBy);
+      for (final ids in r.assign.values) {
+        named.addAll(ids);
+      }
+    }
+    for (final s in g.settlements) {
+      named
+        ..add(s.from)
+        ..add(s.to);
+    }
+
+    if (!friends.any((f) => f.removed && named.contains(f.id))) return;
+    friends = [
+      for (final f in friends)
+        f.removed && named.contains(f.id) ? f.copyWith(removed: false) : f,
+    ];
+    _save();
+  }
 
   void deleteGroup(String id) {
     groups = groups.where((g) => g.id != id).toList();

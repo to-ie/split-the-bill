@@ -236,7 +236,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 8),
           _ListCard(
             children: [
-              for (final f in app.friends)
+              for (final f in app.visibleFriends)
                 _RowPad(
                   child: CompactRow(
                     child: Row(

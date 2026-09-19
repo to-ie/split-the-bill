@@ -1,5 +1,4 @@
 import 'package:bill/app.dart';
-import 'package:bill/state/app_state.dart';
 import 'package:bill/theme/app_theme.dart';
 import 'package:bill/ui/widgets/common.dart';
 import 'package:flutter/material.dart';
